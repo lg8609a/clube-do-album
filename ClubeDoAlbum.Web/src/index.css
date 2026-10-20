@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-syne: 'Syne', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-void: #050508;
+  --color-obsidian: #08090e;
+  --color-surface-1: #0e1017;
+  --color-surface-2: #141620;
+  --color-surface-3: #1a1e2c;
+
+  --keyframes-vapour-float: {
+    0%, 100%: { transform: translateY(0px) rotate(0deg); },
+    50%: { transform: translateY(-7px) rotate(0.35deg); },
+  };
+  --keyframes-pulse-subtle: {
+    0%, 100%: { opacity: 1; transform: scale(1); },
+    50%: { opacity: 0.65; transform: scale(0.97); },
+  };
+  --keyframes-spin-slow: {
+    from: { transform: rotate(0deg); },
+    to: { transform: rotate(360deg); },
+  };
+  --keyframes-shimmer-fast: {
+    0%: { background-position: -200% 0; },
+    100%: { background-position: 200% 0; },
+  };
+  --keyframes-sound-bar: {
+    0%, 100%: { height: 4px; },
+    50%: { height: 18px; },
+  };
+
+  --animation-vapour-float: vapour-float 6s ease-in-out infinite;
+  --animation-pulse-subtle: pulse-subtle 4s ease-in-out infinite;
+  --animation-spin-slow: spin-slow 24s linear infinite;
+  --animation-shimmer-fast: shimmer-fast 3s ease-in-out infinite;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: #06070a;
+    color: #f1f5f9;
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+  }
+
+  /* Custom high-end scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #06070a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1e2029;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2e3242;
+  }
+}
+
+/* Glassmorphism & High-tech Product Tokens */
+.glass-panel {
+  background: rgba(14, 16, 23, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(20, 22, 32, 0.85);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 20px 48px -12px rgba(0, 0, 0, 0.75),
+    0 0 30px -10px rgba(225, 29, 72, 0.12);
+  transform: translateY(-2px);
+}
+
+.glass-button-primary {
+  background: linear-gradient(180deg, #be123c 0%, #881337 100%);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 16px rgba(190, 18, 60, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-button-primary:hover {
+  background: linear-gradient(180deg, #e11d48 0%, #9f1239 100%);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 6px 24px rgba(225, 29, 72, 0.45);
+  transform: translateY(-1px);
+}
+.glass-button-primary:active {
+  transform: translateY(1px);
+  box-shadow: 
+    inset 0 1px 0 rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(190, 18, 60, 0.25);
+}
+
+.glass-button-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+.glass-button-secondary:active {
+  transform: translateY(1px);
+}
+
+/* Metallic & Neon Specular Highlights */
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 1) 25%,
+    rgba(244, 63, 94, 0.9) 50%,
+    rgba(255, 255, 255, 1) 75%,
+    rgba(255, 255, 255, 0.85) 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer-fast 6s linear infinite;
+}
+
+/* Vinyl Grooves Realistic Sheen */
+.vinyl-grooves {
+  background: 
+    radial-gradient(circle at center, transparent 35%, rgba(255,255,255,0.03) 36%, transparent 37%),
+    radial-gradient(circle at center, transparent 48%, rgba(255,255,255,0.02) 49%, transparent 50%),
+    radial-gradient(circle at center, transparent 62%, rgba(255,255,255,0.03) 63%, transparent 64%),
+    radial-gradient(circle at center, transparent 75%, rgba(255,255,255,0.02) 76%, transparent 77%),
+    radial-gradient(circle at center, transparent 88%, rgba(255,255,255,0.03) 89%, transparent 90%),
+    conic-gradient(from 45deg, #09090b 0deg, #18181b 45deg, #09090b 90deg, #18181b 135deg, #09090b 180deg, #18181b 225deg, #09090b 270deg, #18181b 315deg, #09090b 360deg);
+}

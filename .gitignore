@@ -1,0 +1,61 @@
+# ==========================================
+# 🔒 DADOS SENSÍVEIS & CREDENCIAIS (CRÍTICO)
+# ==========================================
+ClubeDoAlbum.Api/appsettings.json
+ClubeDoAlbum.Api/appsettings.*.json
+!ClubeDoAlbum.Api/appsettings.Example.json
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.publishsettings
+secrets.json
+
+# ==========================================
+# ☕ .NET & C# ARTEFATOS DE BUILD
+# ==========================================
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+.vscode/
+*.DotSettings.user
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ==========================================
+# 📦 NODE & FRONTEND (REACT / VITE)
+# ==========================================
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.turbo/
+.cache/
+
+# ==========================================
+# 🖥️ SISTEMA OPERACIONAL & TEMPORÁRIOS
+# ==========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.tmp
+*.temp
+*.bak
+*.swp
