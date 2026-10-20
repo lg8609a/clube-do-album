@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { edicoesApi } from '../services/api';
 import { Edicao } from '../types';
 import { TierBadge } from '../components/TierBadge';
+import { UserAvatar } from '../components/UserAvatar';
 import {
   Calendar,
   Sparkles,
@@ -168,15 +169,12 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
                         {/* Quem Indicou */}
                         {alb.indicadoPor && (
                           <div className="flex items-center gap-1.5 mt-2">
-                            {alb.indicadoPor.avatarUrl ? (
-                              <img
-                                src={alb.indicadoPor.avatarUrl}
-                                alt={alb.indicadoPor.nome}
-                                className="w-4 h-4 rounded-full object-cover"
-                              />
-                            ) : (
-                              <Users className="w-3.5 h-3.5 text-rose-400" />
-                            )}
+                            <UserAvatar
+                              name={alb.indicadoPor.nome}
+                              avatarUrl={alb.indicadoPor.avatarUrl}
+                              size="xs"
+                              className="!w-4 !h-4 !rounded-full"
+                            />
                             <span className="text-[11px] text-zinc-400 truncate">
                               Por: <strong className="text-zinc-200">{alb.indicadoPor.nome}</strong>
                             </span>

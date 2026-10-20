@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { rankingApi } from '../services/api';
 import { CuratorRankingItem } from '../types';
 import { TierBadge } from '../components/TierBadge';
+import { UserAvatar } from '../components/UserAvatar';
 import { Trophy, Users, Disc3, ThumbsUp, ThumbsDown, Star, Skull } from 'lucide-react';
 
 export const CuratorsPage: React.FC = () => {
@@ -107,17 +108,7 @@ export const CuratorsPage: React.FC = () => {
                       {c.posicao}º
                     </div>
 
-                    {c.avatarUrl ? (
-                      <img
-                        src={c.avatarUrl}
-                        alt={c.nome}
-                        className="w-12 h-12 rounded-xl object-cover border border-white/10"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-200 font-display font-bold flex items-center justify-center border border-white/10">
-                        {c.nome[0].toUpperCase()}
-                      </div>
-                    )}
+                    <UserAvatar name={c.nome} avatarUrl={c.avatarUrl} size="lg" />
 
                     <div className="min-w-0">
                       <h3 className="font-display font-bold text-base text-white truncate leading-snug">

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Album } from '../types';
 import { TierBadge } from './TierBadge';
+import { UserAvatar } from './UserAvatar';
 import { Disc3, MessageSquare, Star, User } from 'lucide-react';
 
 interface AlbumCardProps {
@@ -83,15 +84,12 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({ album }) => {
         {/* Curator Attribution */}
         {album.indicadoPor && (
           <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 pt-0.5 truncate">
-            {album.indicadoPor.avatarUrl ? (
-              <img
-                src={album.indicadoPor.avatarUrl}
-                alt={album.indicadoPor.nome}
-                className="w-4 h-4 rounded-full object-cover shrink-0 border border-zinc-700"
-              />
-            ) : (
-              <User className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-            )}
+            <UserAvatar
+              name={album.indicadoPor.nome}
+              avatarUrl={album.indicadoPor.avatarUrl}
+              size="xs"
+              className="!w-4 !h-4 !rounded-full"
+            />
             <span className="truncate">
               Curadoria: <strong className="text-zinc-200 font-medium">{album.indicadoPor.nome}</strong>
             </span>

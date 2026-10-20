@@ -6,6 +6,7 @@ import { Album, RankingItem, Edicao, MembroIndicacoesStatus } from '../types';
 import { AlbumCard } from '../components/AlbumCard';
 import { TierBadge } from '../components/TierBadge';
 import { SoundwaveVisualizer } from '../components/SoundwaveVisualizer';
+import { UserAvatar } from '../components/UserAvatar';
 import {
   Disc3,
   Flame,
@@ -183,17 +184,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                           : 'bg-white/[0.02] border-white/[0.06] text-zinc-500'
                       }`}
                     >
-                      {m.avatarUrl ? (
-                        <img
-                          src={m.avatarUrl}
-                          alt={m.nome}
-                          className="w-8 h-8 rounded-lg object-cover shrink-0 border border-white/10"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/10 flex items-center justify-center font-bold text-white text-xs shrink-0">
-                          {m.nome[0].toUpperCase()}
-                        </div>
-                      )}
+                      <UserAvatar name={m.nome} avatarUrl={m.avatarUrl} size="sm" />
 
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-white text-xs truncate leading-snug">
@@ -311,17 +302,12 @@ export const HomePage: React.FC<HomePageProps> = ({
                 {/* Curator Highlight Pill */}
                 {destaque.indicadoPor ? (
                   <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-rose-950/60 via-zinc-900/80 to-transparent border border-rose-500/30 rounded-2xl shadow-[0_0_20px_rgba(225,29,72,0.15)] backdrop-blur-md">
-                    {destaque.indicadoPor.avatarUrl ? (
-                      <img
-                        src={destaque.indicadoPor.avatarUrl}
-                        alt={destaque.indicadoPor.nome}
-                        className="w-10 h-10 rounded-xl object-cover border border-rose-500/50 shadow"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-800 to-zinc-950 border border-rose-500/40 flex items-center justify-center font-bold text-white text-sm shadow">
-                        {destaque.indicadoPor.nome[0].toUpperCase()}
-                      </div>
-                    )}
+                    <UserAvatar
+                      name={destaque.indicadoPor.nome}
+                      avatarUrl={destaque.indicadoPor.avatarUrl}
+                      size="md"
+                      className="border border-rose-500/50 shadow"
+                    />
                     <div>
                       <span className="text-[10px] font-mono uppercase tracking-widest text-rose-400 font-bold block">
                         Curadoria Oficial desta Semana
@@ -461,17 +447,12 @@ export const HomePage: React.FC<HomePageProps> = ({
                     {/* Curator badge floating on cover */}
                     {alb.indicadoPor && (
                       <div className="absolute bottom-2.5 left-2.5 right-2.5 p-2 bg-black/85 backdrop-blur-md rounded-xl flex items-center gap-2 border border-white/10 shadow-lg">
-                        {alb.indicadoPor.avatarUrl ? (
-                          <img
-                            src={alb.indicadoPor.avatarUrl}
-                            alt={alb.indicadoPor.nome}
-                            className="w-5 h-5 rounded-full object-cover shrink-0"
-                          />
-                        ) : (
-                          <div className="w-5 h-5 rounded-full bg-rose-900 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                            {alb.indicadoPor.nome[0].toUpperCase()}
-                          </div>
-                        )}
+                        <UserAvatar
+                          name={alb.indicadoPor.nome}
+                          avatarUrl={alb.indicadoPor.avatarUrl}
+                          size="xs"
+                          className="!rounded-full"
+                        />
                         <span className="text-[11px] font-bold text-zinc-200 truncate">
                           Por: {alb.indicadoPor.nome}
                         </span>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { UserAvatar } from './UserAvatar';
 import {
   Disc,
   LogIn,
@@ -14,6 +15,7 @@ import {
   Menu,
   X,
   Sparkles,
+  Shield,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -104,54 +106,69 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAddModal }) => {
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-white/20 transition cursor-pointer"
+                title={user.nome}
               >
-                {user.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt={user.nome}
-                    className="w-7 h-7 rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-lg bg-rose-950/80 border border-rose-800/60 text-rose-200 font-mono font-bold text-xs flex items-center justify-center">
-                    {user.nome[0].toUpperCase()}
-                  </div>
-                )}
+                <UserAvatar name={user.nome} avatarUrl={user.avatarUrl} size="sm" />
               </button>
 
               {userMenuOpen && (
-                <div
-                  className="absolute right-0 mt-2 w-56 glass-panel rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 border border-white/[0.1]"
-                  onClick={() => setUserMenuOpen(false)}
-                >
-                  <div className="px-4 py-2.5 border-b border-white/[0.06]">
-                    <p className="text-xs font-bold text-white truncate">{user.nome}</p>
-                    <p className="text-[11px] text-zinc-400 font-mono truncate">{user.email}</p>
+                <>
+                  {/* Backdrop para fechar ao clicar fora */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setUserMenuOpen(false)}
+                  />
+
+                  {/* Menu suspenso com fundo 100% opaco e sólido */}
+                  <div
+                    className="absolute right-0 mt-2 w-60 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] py-2 z-50 animate-in fade-in slide-in-from-top-2 border border-white/[0.12] bg-[#0c0d14] text-white"
+                  >
+                    <div className="px-4 py-3 border-b border-white/[0.08] flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-white truncate">{user.nome}</p>
+                        <p className="text-[11px] text-zinc-400 font-mono truncate">{user.email}</p>
+                      </div>
+                      {user.isAdmin && (
+                        <span className="flex-shrink-0 text-[9px] font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <Shield className="w-2.5 h-2.5" /> Admin
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="py-1">
+                      <Link
+                        to="/minhas-avaliacoes"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-zinc-300 hover:bg-white/[0.06] hover:text-white transition"
+                      >
+                        <Disc className="w-3.5 h-3.5 text-rose-400" />
+                        Minhas Avaliações
+                      </Link>
+
+                      <Link
+                        to="/perfil"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-zinc-300 hover:bg-white/[0.06] hover:text-white transition"
+                      >
+                        <UserIcon className="w-3.5 h-3.5 text-zinc-400" />
+                        Meu Perfil
+                      </Link>
+                    </div>
+
+                    <div className="pt-1 border-t border-white/[0.08]">
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          logout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition text-left cursor-pointer font-mono font-bold"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        Sair da Conta
+                      </button>
+                    </div>
                   </div>
-
-                  <Link
-                    to="/minhas-avaliacoes"
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-zinc-300 hover:bg-white/[0.06] hover:text-white transition"
-                  >
-                    <Disc className="w-3.5 h-3.5 text-rose-400" />
-                    Minhas Avaliações
-                  </Link>
-
-                  <Link
-                    to="/perfil"
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-zinc-300 hover:bg-white/[0.06] hover:text-white transition"
-                  >
-                    <UserIcon className="w-3.5 h-3.5 text-zinc-400" />
-                    Meu Perfil
-                  </Link>
-
-                  <button
-                    onClick={logout}
-                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-rose-400 hover:bg-rose-950/30 transition text-left cursor-pointer border-t border-white/[0.06] mt-1 font-mono"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    Sair da Conta
-                  </button>
-                </div>
+                </>
               )}
             </div>
           ) : (

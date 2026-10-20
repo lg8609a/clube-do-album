@@ -5,6 +5,7 @@ import { AlbumDetail } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { TierBadge } from '../components/TierBadge';
 import { ScoreInput } from '../components/ScoreInput';
+import { UserAvatar } from '../components/UserAvatar';
 import {
   Disc3,
   Star,
@@ -225,17 +226,7 @@ export const AlbumDetailPage: React.FC = () => {
             {/* Curator Highlight */}
             {album.indicadoPor ? (
               <div className="flex items-center gap-3 p-3 bg-white/[0.03] border border-white/[0.08] rounded-2xl max-w-sm backdrop-blur-md shadow-sm">
-                {album.indicadoPor.avatarUrl ? (
-                  <img
-                    src={album.indicadoPor.avatarUrl}
-                    alt={album.indicadoPor.nome}
-                    className="w-10 h-10 rounded-xl object-cover border border-white/10"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-900 to-zinc-950 border border-white/10 flex items-center justify-center font-bold text-white text-sm">
-                    {album.indicadoPor.nome[0].toUpperCase()}
-                  </div>
-                )}
+                <UserAvatar name={album.indicadoPor.nome} avatarUrl={album.indicadoPor.avatarUrl} size="md" />
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-wider text-rose-400 font-bold block">
                     Curadoria Oficial
@@ -378,17 +369,12 @@ export const AlbumDetailPage: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      {rev.usuario.avatarUrl ? (
-                        <img
-                          src={rev.usuario.avatarUrl}
-                          alt={rev.usuario.nome}
-                          className="w-8 h-8 rounded-full object-cover border border-white/10"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-zinc-800 text-zinc-200 text-xs font-bold flex items-center justify-center border border-white/10">
-                          {rev.usuario.nome[0].toUpperCase()}
-                        </div>
-                      )}
+                      <UserAvatar
+                        name={rev.usuario.nome}
+                        avatarUrl={rev.usuario.avatarUrl}
+                        size="sm"
+                        className="!rounded-full border border-white/10"
+                      />
                       <div>
                         <p className="font-bold text-xs text-white leading-tight">{rev.usuario.nome}</p>
                         <p className="text-[10px] text-zinc-500 font-mono">
