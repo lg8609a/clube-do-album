@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { albumsApi, reviewsApi } from '../services/api';
 import { AlbumDetail } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -15,15 +15,18 @@ import {
   LogIn,
   Radio,
   Calendar,
+  Trash2,
 } from 'lucide-react';
 
 export const AlbumDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [album, setAlbum] = useState<AlbumDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Review Form
   const [userScore, setUserScore] = useState(8.0);
@@ -88,6 +91,23 @@ export const AlbumDetailPage: React.FC = () => {
       await loadAlbum();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erro ao alterar status.');
+    }
+  };
+
+  const handleDeleteAlbum = async () => {
+    if (!album) return;
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir o álbum "${album.titulo}" de ${album.artista}?\n\nEsta ação apagará o álbum e todas as avaliações dele do sistema permanentemente.`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      setDeleting(true);
+      await albumsApi.deleteAlbum(album.id);
+      navigate('/');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao excluir o álbum.');
+      setDeleting(false);
     }
   };
 
@@ -242,12 +262,23 @@ export const AlbumDetailPage: React.FC = () => {
               )}
 
               {user?.isAdmin && (
-                <button
-                  onClick={handleToggleStatus}
-                  className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 font-mono font-bold text-xs uppercase tracking-wider transition cursor-pointer border border-white/[0.08]"
-                >
-                  Mudar p/ {album.status === 'EstaSemana' ? 'Já Ouvido' : 'Esta Semana'}
-                </button>
+                <>
+                  <button
+                    onClick={handleToggleStatus}
+                    className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 font-mono font-bold text-xs uppercase tracking-wider transition cursor-pointer border border-white/[0.08]"
+                  >
+                    Mudar p/ {album.status === 'EstaSemana' ? 'Já Ouvido' : 'Esta Semana'}
+                  </button>
+                  <button
+                    onClick={handleDeleteAlbum}
+                    disabled={deleting}
+                    className="px-4 py-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 hover:text-rose-200 font-mono font-bold text-xs uppercase tracking-wider transition cursor-pointer border border-rose-500/30 flex items-center gap-1.5 disabled:opacity-50"
+                    title="Excluir álbum do sistema"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    {deleting ? 'Excluindo...' : 'Excluir Álbum'}
+                  </button>
+                </>
               )}
             </div>
           </div>
