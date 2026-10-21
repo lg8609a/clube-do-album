@@ -1,6 +1,8 @@
 **Clube do Álbum**
 O Clube do Álbum é uma aplicação web desenvolvida para gerenciar audições musicais, avaliações e resenhas. A plataforma centraliza a indicação semanal de discos, o cálculo automático de médias e a manutenção do histórico de reuniões do grupo, substituindo o controle manual feito anteriormente por meio de planilhas.
 
+
+
 **Tecnologias Utilizadas**
 Backend (ClubeDoAlbum.Api)
 -> .NET 10 / ASP.NET Core Web API: Estrutura principal da API REST.
@@ -15,6 +17,8 @@ Backend (ClubeDoAlbum.Api)
 
 -> Memory Cache: Armazenamento em cache do token de acesso do Spotify para redução de requisições.
 
+
+
 **Frontend**
 -> React 19 & TypeScript: Desenvolvimento da interface de usuário.
 
@@ -26,7 +30,10 @@ Backend (ClubeDoAlbum.Api)
 
 -> Axios: Cliente HTTP para comunicação com a API.
 
+
+
 **Funcionalidades**
+
 ->  Gestão de Semanas Temáticas: Criação de edições temáticas e controle de cotas de indicações por membro ativo.
 
 -> Busca de Metadados: Integração com o Spotify para busca de álbuns por texto ou resolução via URL direta.
@@ -39,6 +46,8 @@ Backend (ClubeDoAlbum.Api)
 
 -> Gerenciamento de Perfil: Área do usuário para atualização de credenciais, alteração de avatar e visualização do histórico pessoal de resenhas.
 
+
+
 **Como Executar Localmente**
 Pré-requisitos
 -> .NET 10 SDK
@@ -47,6 +56,8 @@ Pré-requisitos
 
 -> Credenciais ativas e configuradas no Supabase e no Spotify Developer Dashboard.
 
+
+
 **Executando o Backend**
 Bash
 cd ClubeDoAlbum.Api
@@ -54,12 +65,16 @@ dotnet restore
 dotnet run --launch-profile http
 A API estará disponível em: http://localhost:5046
 
+
+
 **Executando o Frontend**
 Bash
 cd ClubeDoAlbum.Web
 npm install
 npm run dev
 A aplicação Web estará disponível em: http://localhost:5173
+
+
 
 **Documentação Técnica**
 Para detalhes sobre a arquitetura dos módulos, descrição da estrutura de arquivos e especificação dos endpoints REST, consulte o arquivo DOCUMENTACAO.md.
