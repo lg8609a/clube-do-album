@@ -35,7 +35,8 @@ public class EdicoesController : ControllerBase
             .ThenByDescending(e => e.CreatedAt)
             .ToListAsync();
 
-        var resultado = edicoes.Select(MapToEdicaoResponseDto).ToList();
+        var currentUserId = GetCurrentUserId();
+        var resultado = edicoes.Select(e => MapToEdicaoResponseDto(e, currentUserId)).ToList();
         return Ok(resultado);
     }
 
@@ -57,7 +58,7 @@ public class EdicoesController : ControllerBase
             return Ok(null);
         }
 
-        return Ok(MapToEdicaoResponseDto(edicaoAtiva));
+        return Ok(MapToEdicaoResponseDto(edicaoAtiva, GetCurrentUserId()));
     }
 
     /// <summary>
@@ -123,7 +124,7 @@ public class EdicoesController : ControllerBase
             return NotFound(new { message = "Edição não encontrada." });
         }
 
-        return Ok(MapToEdicaoResponseDto(edicao));
+        return Ok(MapToEdicaoResponseDto(edicao, GetCurrentUserId()));
     }
 
     /// <summary>
@@ -179,7 +180,7 @@ public class EdicoesController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
-        return CreatedAtAction(nameof(GetEdicaoById), new { id = edicao.Id }, MapToEdicaoResponseDto(edicao));
+        return CreatedAtAction(nameof(GetEdicaoById), new { id = edicao.Id }, MapToEdicaoResponseDto(edicao, GetCurrentUserId()));
     }
 
     /// <summary>
@@ -209,7 +210,7 @@ public class EdicoesController : ControllerBase
         }
 
         await _context.SaveChangesAsync();
-        return Ok(MapToEdicaoResponseDto(edicao));
+        return Ok(MapToEdicaoResponseDto(edicao, GetCurrentUserId()));
     }
 
     /// <summary>
@@ -256,7 +257,7 @@ public class EdicoesController : ControllerBase
         }
 
         await _context.SaveChangesAsync();
-        return Ok(MapToEdicaoResponseDto(edicao));
+        return Ok(MapToEdicaoResponseDto(edicao, GetCurrentUserId()));
     }
 
     /// <summary>
@@ -295,7 +296,7 @@ public class EdicoesController : ControllerBase
         edicao.DataReuniao = request.DataReuniao;
         await _context.SaveChangesAsync();
 
-        return Ok(MapToEdicaoResponseDto(edicao));
+        return Ok(MapToEdicaoResponseDto(edicao, GetCurrentUserId()));
     }
 
     /// <summary>
@@ -340,32 +341,46 @@ public class EdicoesController : ControllerBase
         return NoContent();
     }
 
-    private static EdicaoResponseDto MapToEdicaoResponseDto(Edicao e)
+    private Guid? GetCurrentUserId()
     {
-        var albuns = e.Albuns.Select(a => new AlbumResponseDto
+        var claimUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return Guid.TryParse(claimUserId, out var userId) ? userId : null;
+    }
+
+    private static EdicaoResponseDto MapToEdicaoResponseDto(Edicao e, Guid? currentUserId = null)
+    {
+        var albuns = e.Albuns.Select(a =>
         {
-            Id = a.Id,
-            Titulo = a.Titulo,
-            Artista = a.Artista,
-            AnoLancamento = a.AnoLancamento,
-            CapaUrl = a.CapaUrl,
-            SpotifyUrl = a.SpotifyUrl,
-            SpotifyId = a.SpotifyId,
-            PaisOrigem = a.PaisOrigem,
-            Status = a.Status.ToString(),
-            NotaMedia = a.NotaMedia,
-            TotalAvaliacoes = a.Avaliacoes?.Count ?? 0,
-            CreatedAt = a.CreatedAt,
-            EdicaoId = a.EdicaoId,
-            EdicaoTema = e.Tema,
-            IndicadoPor = a.IndicadoPorUser != null ? new UserDto
+            decimal? minhaNota = currentUserId.HasValue
+                ? a.Avaliacoes?.FirstOrDefault(av => av.UserId == currentUserId.Value)?.Nota
+                : null;
+
+            return new AlbumResponseDto
             {
-                Id = a.IndicadoPorUser.Id,
-                Nome = a.IndicadoPorUser.Nome,
-                Email = a.IndicadoPorUser.Email,
-                AvatarUrl = a.IndicadoPorUser.AvatarUrl,
-                IsAdmin = a.IndicadoPorUser.IsAdmin
-            } : null
+                Id = a.Id,
+                Titulo = a.Titulo,
+                Artista = a.Artista,
+                AnoLancamento = a.AnoLancamento,
+                CapaUrl = a.CapaUrl,
+                SpotifyUrl = a.SpotifyUrl,
+                SpotifyId = a.SpotifyId,
+                PaisOrigem = a.PaisOrigem,
+                Status = a.Status.ToString(),
+                NotaMedia = a.NotaMedia,
+                TotalAvaliacoes = a.Avaliacoes?.Count ?? 0,
+                CreatedAt = a.CreatedAt,
+                EdicaoId = a.EdicaoId,
+                EdicaoTema = e.Tema,
+                MinhaNota = minhaNota,
+                IndicadoPor = a.IndicadoPorUser != null ? new UserDto
+                {
+                    Id = a.IndicadoPorUser.Id,
+                    Nome = a.IndicadoPorUser.Nome,
+                    Email = a.IndicadoPorUser.Email,
+                    AvatarUrl = a.IndicadoPorUser.AvatarUrl,
+                    IsAdmin = a.IndicadoPorUser.IsAdmin
+                } : null
+            };
         }).OrderByDescending(a => a.NotaMedia).ToList();
 
         decimal? mediaGeral = albuns.Any(a => a.NotaMedia > 0)

@@ -44,6 +44,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [topRanking, setTopRanking] = useState<RankingItem[]>([]);
   const [recentes, setRecentes] = useState<Album[]>([]);
   const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(0);
+  const [filtroDiscos, setFiltroDiscos] = useState<'todos' | 'pendentes' | 'avaliados'>('todos');
   const [loading, setLoading] = useState(true);
   const [isEditDateModalOpen, setIsEditDateModalOpen] = useState(false);
   const discosScrollRef = useRef<HTMLDivElement>(null);
@@ -107,6 +108,20 @@ export const HomePage: React.FC<HomePageProps> = ({
       </div>
     );
   }
+
+  const totalAlbunsSemana = albunsSemana.length;
+  const albunsAvaliadosCount = albunsSemana.filter((a) => a.jaAvaliadoPorMim).length;
+  const pendentesCount = Math.max(0, totalAlbunsSemana - albunsAvaliadosCount);
+  const progressoPorcentagem = totalAlbunsSemana > 0 ? Math.round((albunsAvaliadosCount / totalAlbunsSemana) * 100) : 0;
+  const todosAvaliados = totalAlbunsSemana > 0 && albunsAvaliadosCount === totalAlbunsSemana;
+
+  const discosFiltrados = albunsSemana
+    .map((album, originalIndex) => ({ album, originalIndex }))
+    .filter(({ album }) => {
+      if (filtroDiscos === 'pendentes') return !album.jaAvaliadoPorMim;
+      if (filtroDiscos === 'avaliados') return !!album.jaAvaliadoPorMim;
+      return true;
+    });
 
   const destaque = albunsSemana[selectedAlbumIndex] || albunsSemana[0];
 
@@ -278,6 +293,86 @@ export const HomePage: React.FC<HomePageProps> = ({
       <section className="relative overflow-hidden glass-panel rounded-3xl p-6 sm:p-12 border border-white/[0.09] shadow-[0_25px_70px_-20px_rgba(0,0,0,0.9)]">
         {albunsSemana.length > 0 && destaque ? (
           <div className="space-y-8">
+            {/* Checklist Pessoal de Avaliações da Semana */}
+            {user && totalAlbunsSemana > 0 && (
+              <div className="glass-panel rounded-2xl p-4 sm:p-5 border border-white/[0.08] bg-gradient-to-r from-white/[0.02] via-white/[0.04] to-transparent space-y-3 shadow-inner">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-mono tracking-widest text-zinc-400 font-bold flex items-center gap-1.5">
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${todosAvaliados ? 'text-emerald-400' : 'text-rose-400'}`} />
+                        Meu Progresso na Rodada
+                      </span>
+                      {todosAvaliados && (
+                        <span className="bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded-full font-bold">
+                          100% Concluído 🎉
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm sm:text-base font-display font-bold text-white">
+                      Você avaliou <span className="text-emerald-400">{albunsAvaliadosCount}</span> de <span className="text-white">{totalAlbunsSemana}</span> discos desta semana
+                      {!todosAvaliados && (
+                        <span className="text-zinc-400 text-xs font-normal font-sans ml-2">
+                          (Faltam <strong className="text-amber-400 font-semibold">{pendentesCount} {pendentesCount === 1 ? 'disco' : 'discos'}</strong> para a reunião)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Filtro em pílulas */}
+                  <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/[0.06] self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setFiltroDiscos('todos')}
+                      className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                        filtroDiscos === 'todos'
+                          ? 'bg-white/10 text-white shadow-sm border border-white/20'
+                          : 'text-zinc-400 hover:text-zinc-200'
+                      }`}
+                    >
+                      Todos ({totalAlbunsSemana})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFiltroDiscos('pendentes')}
+                      className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        filtroDiscos === 'pendentes'
+                          ? 'bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-sm'
+                          : 'text-zinc-400 hover:text-amber-300'
+                      }`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                      Faltam Ouvir ({pendentesCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFiltroDiscos('avaliados')}
+                      className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        filtroDiscos === 'avaliados'
+                          ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                          : 'text-zinc-400 hover:text-emerald-300'
+                      }`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      Avaliados ({albunsAvaliadosCount})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Barra de progresso visual */}
+                <div className="w-full bg-black/50 h-2 rounded-full overflow-hidden border border-white/10">
+                  <div
+                    className={`h-full transition-all duration-700 ease-out ${
+                      todosAvaliados
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+                        : 'bg-gradient-to-r from-rose-500 via-fuchsia-500 to-emerald-400'
+                    }`}
+                    style={{ width: `${progressoPorcentagem}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Seletor rápido de discos caso haja múltiplos na semana */}
             {albunsSemana.length > 1 && (
               <div className="space-y-3 pb-3">
@@ -318,31 +413,66 @@ export const HomePage: React.FC<HomePageProps> = ({
                   tabIndex={0}
                   aria-label="Discos da edição"
                 >
-                  {albunsSemana.map((a, idx) => (
-                    <button
-                      key={a.id}
-                      onClick={() => setSelectedAlbumIndex(idx)}
-                      className={`flex items-center gap-3 p-2 rounded-xl border text-xs transition-all duration-200 shrink-0 cursor-pointer ${
-                        selectedAlbumIndex === idx
-                          ? 'bg-rose-950/60 border-rose-500/60 text-white shadow-[0_0_16px_rgba(225,29,72,0.25)] ring-1 ring-rose-500/40'
-                          : 'bg-white/[0.03] border-white/[0.06] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
-                      }`}
-                    >
-                      <img
-                        src={a.capaUrl || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17'}
-                        alt={a.titulo}
-                        className="w-9 h-9 rounded-lg object-cover border border-white/10 shrink-0"
-                      />
-                      <div className="text-left">
-                        <p className="font-bold truncate max-w-[130px] text-xs leading-tight">
-                          {a.titulo}
-                        </p>
-                        <p className="text-[10px] text-zinc-400 font-mono truncate max-w-[130px]">
-                          Por: {a.indicadoPor?.nome || 'Anônimo'}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
+                  {discosFiltrados.map(({ album: a, originalIndex: idx }) => {
+                    const isSelected = selectedAlbumIndex === idx;
+                    const isAvaliado = !!a.jaAvaliadoPorMim;
+
+                    return (
+                      <button
+                        key={a.id}
+                        onClick={() => setSelectedAlbumIndex(idx)}
+                        className={`flex items-center gap-3 p-2 rounded-xl border text-xs transition-all duration-200 shrink-0 cursor-pointer ${
+                          isSelected
+                            ? 'bg-rose-950/60 border-rose-500/60 text-white shadow-[0_0_16px_rgba(225,29,72,0.25)] ring-1 ring-rose-500/40'
+                            : isAvaliado
+                            ? 'bg-white/[0.02] border-emerald-500/25 text-zinc-400 hover:text-white hover:bg-white/[0.06] opacity-75 hover:opacity-100'
+                            : 'bg-white/[0.03] border-white/[0.06] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+                        }`}
+                      >
+                        <div className="relative shrink-0">
+                          <img
+                            src={a.capaUrl || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17'}
+                            alt={a.titulo}
+                            className={`w-9 h-9 rounded-lg object-cover border ${
+                              isAvaliado ? 'border-emerald-500/40' : 'border-white/10'
+                            }`}
+                          />
+                          {isAvaliado && (
+                            <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center text-[8px] text-black font-black shadow">
+                              ✓
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-bold truncate max-w-[120px] text-xs leading-tight">
+                              {a.titulo}
+                            </p>
+                            {isAvaliado && (
+                              <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/80 px-1 py-0.2 rounded border border-emerald-500/30 shrink-0">
+                                ★ {a.minhaNota?.toFixed(1)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-zinc-400 font-mono truncate max-w-[120px]">
+                            Por: {a.indicadoPor?.nome || 'Anônimo'}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {discosFiltrados.length === 0 && (
+                    <div className="py-2 px-4 text-xs font-mono text-zinc-400 flex items-center gap-2">
+                      <span>Nenhum disco encontrado para este filtro.</span>
+                      <button
+                        type="button"
+                        onClick={() => setFiltroDiscos('todos')}
+                        className="text-rose-400 underline cursor-pointer"
+                      >
+                        Ver todos
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -448,16 +578,42 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <span>Aguardando as primeiras avaliações da rodada!</span>
                     </div>
                   )}
+
+                  {/* Personal evaluation badge in hero */}
+                  {destaque.jaAvaliadoPorMim ? (
+                    <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span>Sua nota: <strong className="text-white text-sm font-black">{destaque.minhaNota?.toFixed(1)}</strong></span>
+                    </div>
+                  ) : user ? (
+                    <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      <span>Você ainda não avaliou este disco</span>
+                    </div>
+                  ) : null}
                 </div>
 
                 {/* Action CTAs */}
                 <div className="flex flex-wrap items-center gap-3.5 pt-2">
                   <Link
                     to={`/album/${destaque.id}`}
-                    className="glass-button-primary px-7 py-3.5 rounded-xl text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg"
+                    className={`px-7 py-3.5 rounded-xl font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg transition-all ${
+                      destaque.jaAvaliadoPorMim
+                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-950/40'
+                        : 'glass-button-primary text-white'
+                    }`}
                   >
-                    Dar Minha Nota & Review
-                    <ArrowRight className="w-4 h-4" />
+                    {destaque.jaAvaliadoPorMim ? (
+                      <>
+                        <Pencil className="w-4 h-4" />
+                        Editar Minha Nota & Review
+                      </>
+                    ) : (
+                      <>
+                        Dar Minha Nota & Review
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
                   </Link>
 
                   {destaque.spotifyUrl && (
@@ -528,6 +684,19 @@ export const HomePage: React.FC<HomePageProps> = ({
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
+                    {/* Minha Avaliação Badge flutuante */}
+                    {alb.jaAvaliadoPorMim ? (
+                      <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-xl bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 font-mono font-bold text-[11px] flex items-center gap-1.5 shadow-lg backdrop-blur-md z-10" title={`Sua nota: ${alb.minhaNota?.toFixed(1)}`}>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Sua nota: {alb.minhaNota?.toFixed(1)}</span>
+                      </div>
+                    ) : user ? (
+                      <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-xl bg-amber-950/90 border border-amber-500/40 text-amber-300 font-mono font-bold text-[10px] flex items-center gap-1.5 shadow-lg backdrop-blur-md z-10">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                        <span>Pendente</span>
+                      </div>
+                    ) : null}
+
                     {/* Curator badge floating on cover */}
                     {alb.indicadoPor && (
                       <Link
@@ -574,9 +743,13 @@ export const HomePage: React.FC<HomePageProps> = ({
 
                   <Link
                     to={`/album/${alb.id}`}
-                    className="glass-button-primary px-3 py-1.5 rounded-lg text-white text-xs font-mono font-bold uppercase transition"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition ${
+                      alb.jaAvaliadoPorMim
+                        ? 'bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/60'
+                        : 'glass-button-primary text-white'
+                    }`}
                   >
-                    Avaliar
+                    {alb.jaAvaliadoPorMim ? 'Editar' : 'Avaliar'}
                   </Link>
                 </div>
               </div>

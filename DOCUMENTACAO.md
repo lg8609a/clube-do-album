@@ -168,6 +168,19 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - Simplificação total de `AddAlbumModal.tsx`: eliminação da aba/botão de cadastro retroativo, campos de edição/tema manuais e lista de resenhas em lote. O modal agora é 100% focado no fluxo oficial de indicações da semana temática ativa, com busca no Spotify e validação de cotas (máx. 2 álbuns por membro).
   - Atualização do serviço `api.ts`, removendo `createRetroativo` e adicionando `deleteEdicao`.
 
+### Fase 16: Checklist Pessoal da Rodada & Indicadores Visuais de Avaliação Individual
+- **Contexto & Diagnóstico:** Com a expansão para até 10 álbuns por semana temática (até 2 indicações por membro ativo), tornou-se difícil para os amigos lembrarem individualmente quais discos da rodada já haviam avaliado e quais ainda faltavam escutar antes da reunião.
+- **Implementação no Backend (.NET 10):**
+  - **Identificação Contextual via JWT:** Utilização da claim `ClaimTypes.NameIdentifier` para identificar o membro autenticado em requisições de listagem (`GET /api/albums`, `GET /api/edicoes/ativa`, `GET /api/edicoes`, `GET /api/albums/{id}`).
+  - **Enriquecimento do DTO (`AlbumResponseDto`):** Inclusão dos campos `MinhaNota` (`decimal?`) e `JaAvaliadoPorMim` (`bool`), populados de forma atômica e com custo O(1) diretamente a partir da relação com a tabela `avaliacoes`. Se o usuário for anônimo, os campos retornam `null` e `false`.
+- **Implementação no Frontend (React):**
+  - **Meu Checklist da Rodada (Home):** Painel dinâmico posicionado acima dos discos da semana contendo contagem de discos avaliados vs. pendentes, barra de progresso visual gradiente (0 a 100%) e selo de celebração (*"100% Concluído 🎉"*).
+  - **Filtro em Pílulas:** Botões de alternância instantânea (*"Todos"*, *"🔥 Faltam Ouvir"* e *"✅ Já Avaliados"*) para filtrar o carrossel horizontal de discos da edição.
+  - **Tratamento Visual nos Discos:**
+    - **Álbuns Avaliados:** Ganham opacidade atenuada suave (`opacity-75`), ícone de confirmação esmeralda (`✓`) e badge com a nota pessoal dada (`★ 8.5`).
+    - **Álbuns Pendentes:** Mantêm 100% de brilho e destaque com indicador âmbar pulsante.
+  - **Hero do Vinil & Grid:** Se o disco em foco já foi avaliado pelo membro, o botão principal transiciona para *"Editar Minha Nota & Review"* e exibe um selo verde de alta visibilidade com a nota pessoal atribuída.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas

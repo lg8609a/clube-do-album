@@ -75,6 +75,13 @@ public class AlbumsController : ControllerBase
         }
 
 
+        Guid? currentUserId = null;
+        var claimUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(claimUserId, out var parsedUserId))
+        {
+            currentUserId = parsedUserId;
+        }
+
         var albums = await query
             .OrderByDescending(a => a.CreatedAt)
             .Select(a => new AlbumResponseDto
@@ -93,6 +100,9 @@ public class AlbumsController : ControllerBase
                 CreatedAt = a.CreatedAt,
                 EdicaoId = a.EdicaoId,
                 EdicaoTema = a.Edicao != null ? a.Edicao.Tema : null,
+                MinhaNota = currentUserId.HasValue
+                    ? a.Avaliacoes.Where(av => av.UserId == currentUserId.Value).Select(av => (decimal?)av.Nota).FirstOrDefault()
+                    : null,
                 IndicadoPor = a.IndicadoPorUser != null ? new UserDto
                 {
                     Id = a.IndicadoPorUser.Id,
@@ -171,6 +181,11 @@ public class AlbumsController : ControllerBase
                 })
                 .ToList()
         };
+
+        if (Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var currentAuthUserId))
+        {
+            dto.MinhaNota = album.Avaliacoes.FirstOrDefault(av => av.UserId == currentAuthUserId)?.Nota;
+        }
 
         // 1. Se ainda não tem país de origem cadastrado, resolve via MusicBrainz e salva no banco
         if (string.IsNullOrWhiteSpace(dto.PaisOrigem) && !string.IsNullOrWhiteSpace(album.Artista))

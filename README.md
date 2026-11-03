@@ -41,6 +41,8 @@ Backend (ClubeDoAlbum.Api)
 
 -> País de Origem da Banda: Detecção automática da nacionalidade da banda via MusicBrainz com exibição de bandeira nacional (🇬🇧, 🇧🇷, 🇺🇸, 🇸🇪, 🇩🇪) e tooltip informativo.
 
+-> Meu Checklist da Rodada & Avaliação Individual: Painel personalizado para cada membro logado com barra de progresso, filtro rápido ("Faltam Ouvir" vs "Avaliados"), badges com a nota individual já atribuída e atenuação visual elegante de discos concluídos.
+
 -> Sistema de Avaliações: Registro de notas (0.0 a 10.0) e resenhas textuais. Os álbuns recebem classificações em categorias pré-definidas com base na média final obtida (Masterpiece, É o Aço, Bom, Meia Boca, Ruim, Absolute Porcaria).
 
 -> Rankings e Estatísticas: Tabelas de classificação gerais para os álbuns avaliados e um ranking de curadores baseado na média das notas de suas respectivas indicações.

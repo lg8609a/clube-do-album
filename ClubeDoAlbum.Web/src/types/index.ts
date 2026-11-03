@@ -53,6 +53,8 @@ export interface Album {
   edicaoId?: string;
   edicaoTema?: string;
   indicadoPor?: User;
+  minhaNota?: number | null;
+  jaAvaliadoPorMim?: boolean;
 }
 
 export interface AlbumDetail extends Album {

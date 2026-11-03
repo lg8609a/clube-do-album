@@ -47,6 +47,9 @@ public class AlbumResponseDto
     public Guid? EdicaoId { get; set; }
     public string? EdicaoTema { get; set; }
 
+    public decimal? MinhaNota { get; set; }
+    public bool JaAvaliadoPorMim => MinhaNota.HasValue;
+
     public UserDto? IndicadoPor { get; set; }
 }
 

@@ -4,7 +4,7 @@ import { Album } from '../types';
 import { TierBadge } from './TierBadge';
 import { UserAvatar } from './UserAvatar';
 import { CountryFlag } from './CountryFlag';
-import { Disc3, MessageSquare, Star, User } from 'lucide-react';
+import { Disc3, MessageSquare, Star, User, CheckCircle2 } from 'lucide-react';
 
 interface AlbumCardProps {
   album: Album;
@@ -40,6 +40,17 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({ album }) => {
           <div className="absolute top-2.5 left-2.5 bg-rose-600/90 backdrop-blur-md text-white text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-lg border border-rose-400/30 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             Esta Semana
+          </div>
+        )}
+
+        {/* Minha Avaliação Overlay */}
+        {album.jaAvaliadoPorMim && (
+          <div
+            className="absolute top-2.5 right-2.5 bg-emerald-950/85 backdrop-blur-md text-emerald-300 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border border-emerald-500/40 flex items-center gap-1 shadow-lg z-10"
+            title={`Você já avaliou este disco com nota ${album.minhaNota?.toFixed(1)}`}
+          >
+            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+            <span>Sua nota: {album.minhaNota?.toFixed(1)}</span>
           </div>
         )}
 
