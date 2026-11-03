@@ -116,6 +116,64 @@ public class SpotifyService : ISpotifyService
             .ToList();
     }
 
+    public async Task<List<SpotifyTrackDto>> GetAlbumTracksAsync(string spotifyId)
+    {
+        if (string.IsNullOrWhiteSpace(spotifyId)) return new List<SpotifyTrackDto>();
+
+        var cacheKey = $"spotify_tracks_{spotifyId.Trim()}";
+        if (_cache.TryGetValue(cacheKey, out List<SpotifyTrackDto>? cachedTracks) && cachedTracks != null)
+        {
+            return cachedTracks;
+        }
+
+        try
+        {
+            var token = await GetAccessTokenAsync();
+            var url = $"https://api.spotify.com/v1/albums/{spotifyId.Trim()}/tracks?limit=50";
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<SpotifyTrackDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var tracksResponse = JsonSerializer.Deserialize<SpotifyTrackListResponse>(content);
+
+            if (tracksResponse?.Items == null) return new List<SpotifyTrackDto>();
+
+            var tracks = tracksResponse.Items.Select(t =>
+            {
+                var ts = TimeSpan.FromMilliseconds(t.DurationMs);
+                var minutos = (int)ts.TotalMinutes;
+                var segundos = ts.Seconds;
+                var formatada = $"{minutos:D2}:{segundos:D2}";
+
+                return new SpotifyTrackDto
+                {
+                    Numero = t.TrackNumber,
+                    Titulo = t.Name ?? "Faixa sem título",
+                    DuracaoMs = t.DurationMs,
+                    DuracaoFormatada = formatada,
+                    SpotifyUrl = t.ExternalUrls?.Spotify,
+                    Explicit = t.Explicit,
+                    DiscoNumero = t.DiscNumber
+                };
+            }).OrderBy(t => t.DiscoNumero).ThenBy(t => t.Numero).ToList();
+
+            // Cache por 24 horas
+            _cache.Set(cacheKey, tracks, TimeSpan.FromHours(24));
+            return tracks;
+        }
+        catch
+        {
+            return new List<SpotifyTrackDto>();
+        }
+    }
+
     public async Task<SpotifyAlbumDto?> ResolveAlbumAsync(string input)
     {
         if (string.IsNullOrWhiteSpace(input)) return null;
@@ -228,6 +286,36 @@ public class SpotifyService : ISpotifyService
     {
         [JsonPropertyName("spotify")]
         public string? Spotify { get; set; }
+    }
+
+    private class SpotifyTrackListResponse
+    {
+        [JsonPropertyName("items")]
+        public List<SpotifyTrackItem>? Items { get; set; }
+    }
+
+    private class SpotifyTrackItem
+    {
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("track_number")]
+        public int TrackNumber { get; set; }
+
+        [JsonPropertyName("disc_number")]
+        public int DiscNumber { get; set; } = 1;
+
+        [JsonPropertyName("duration_ms")]
+        public int DurationMs { get; set; }
+
+        [JsonPropertyName("explicit")]
+        public bool Explicit { get; set; }
+
+        [JsonPropertyName("external_urls")]
+        public SpotifyExternalUrls? ExternalUrls { get; set; }
     }
     #endregion
 }

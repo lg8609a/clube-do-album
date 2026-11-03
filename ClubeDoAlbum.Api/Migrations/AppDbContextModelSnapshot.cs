@@ -52,6 +52,10 @@ namespace ClubeDoAlbum.Api.Migrations
                         .HasPrecision(3, 1)
                         .HasColumnType("numeric(3,1)");
 
+                    b.Property<string>("PaisOrigem")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
                     b.Property<string>("SpotifyId")
                         .HasColumnType("text");
 

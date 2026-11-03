@@ -270,6 +270,7 @@ public class EdicoesController : ControllerBase
             CapaUrl = a.CapaUrl,
             SpotifyUrl = a.SpotifyUrl,
             SpotifyId = a.SpotifyId,
+            PaisOrigem = a.PaisOrigem,
             Status = a.Status.ToString(),
             NotaMedia = a.NotaMedia,
             TotalAvaliacoes = a.Avaliacoes?.Count ?? 0,

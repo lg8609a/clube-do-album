@@ -121,6 +121,16 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - Inclusão de `.Include(e => e.Albuns).ThenInclude(a => a.Avaliacoes)` em todos os métodos de consulta do `EdicoesController.cs`.
   - Atualização no frontend para considerar a nota calculada `(destaque.totalAvaliacoes > 0 || destaque.notaMedia > 0)` e sincronizar `albunsSemana` com as avaliações recém-registradas.
 
+### Fase 12: Países de Origem das Bandas (MusicBrainz) & Tracklist Completa das Faixas
+- **Detecção do País de Origem da Banda:**
+  - Como a API do Spotify não disponibiliza país de origem ou nacionalidade dos artistas/bandas, integramos o backend com a **MusicBrainz API** (`IMusicBrainzService`).
+  - Durante o cadastro do álbum (ou sob demanda ao abrir a página de detalhes), a API consulta o artista no MusicBrainz e salva o código ISO 3166-1 alpha-2 (`PaisOrigem`, ex: `GB`, `US`, `BR`, `SE`, `DE`) na coluna `albums.PaisOrigem`.
+  - No frontend, o componente `CountryFlag.tsx` converte o código ISO no emoji da bandeira correspondente (🇬🇧, 🇧🇷, 🇺🇸) e exibe um tooltip nativo ao passar o mouse com o nome do país em português (*"Reino Unido"*, *"Suécia"*).
+- **Lista de Músicas (Tracklist Oficial do Álbum):**
+  - Implementação do método `GetAlbumTracksAsync` no `SpotifyService.cs`, consultando `GET /v1/albums/{id}/tracks` com cache em memória de 24 horas (`IMemoryCache`).
+  - **Decisão Arquitetural:** Para não inflar o banco de dados com centenas de faixas estáticas, as músicas são recuperadas **sob demanda** via Spotify ID apenas quando a página de avaliação do álbum é aberta.
+  - No frontend, o componente `AlbumTracklist.tsx` renderiza um painel retrátil elegante exibindo número da faixa (`01`, `02`), título, duração (`mm:ss`), tempo total do álbum e link direto para reprodução no Spotify.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas

@@ -54,6 +54,7 @@ public class AppDbContext : DbContext
                       v => v.ToString(),
                       v => ParseAlbumStatus(v));
             entity.Property(a => a.NotaMedia).HasPrecision(3, 1);
+            entity.Property(a => a.PaisOrigem).HasMaxLength(10);
 
 
 

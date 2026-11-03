@@ -9,13 +9,15 @@ Backend (ClubeDoAlbum.Api)
 
 -> Entity Framework Core 10 (Npgsql): ORM utilizado para o mapeamento objeto-relacional.
 
--> PostgreSQL (Supabase): Banco de dados relacional.
+-> PostgreSQL (Supabase): Banco de dados relacional hospedado na nuvem na região de São Paulo (sa-east-1) via Connection Pooler IPv4.
 
--> Spotify Web API: Integração no backend para busca de metadados e capas, utilizando Client Credentials.
+-> Spotify Web API: Integração no backend para busca de metadados, capas em alta resolução e tracklist de faixas, utilizando Client Credentials.
+
+-> MusicBrainz API: Integração para detecção e catálogo automático do país de origem e nacionalidade das bandas/artistas.
 
 -> JWT & BCrypt.Net: Autenticação stateless e hashing de senhas.
 
--> Memory Cache: Armazenamento em cache do token de acesso do Spotify para redução de requisições.
+-> Memory Cache: Armazenamento em cache de tokens de acesso, tracklists e consultas a APIs externas para redução de requisições.
 
 
 
@@ -24,7 +26,7 @@ Backend (ClubeDoAlbum.Api)
 
 -> Vite 8: Ferramenta de build e execução local.
 
--> Tailwind CSS v4: Estilização dos componentes da interface.
+-> Tailwind CSS v4: Estilização dos componentes da interface com design system dark e efeitos visuais.
 
 -> Lucide React: Biblioteca de ícones vetorizados.
 
@@ -33,18 +35,19 @@ Backend (ClubeDoAlbum.Api)
 
 
 **Funcionalidades**
+-> Gestão de Semanas Temáticas: Criação de edições temáticas e controle de cotas de indicações por membro ativo (até 2 por semana).
 
-->  Gestão de Semanas Temáticas: Criação de edições temáticas e controle de cotas de indicações por membro ativo.
+-> Busca de Metadados & Faixas: Integração com o Spotify para busca de álbuns por texto ou resolução via URL direta, com listagem completa das faixas (tracklist) na página de detalhes.
 
--> Busca de Metadados: Integração com o Spotify para busca de álbuns por texto ou resolução via URL direta.
+-> País de Origem da Banda: Detecção automática da nacionalidade da banda via MusicBrainz com exibição de bandeira nacional (🇬🇧, 🇧🇷, 🇺🇸, 🇸🇪, 🇩🇪) e tooltip informativo.
 
--> Sistema de Avaliações: Registro de notas (0.0 a 10.0) e resenhas textuais. Os álbuns recebem classificações em categorias pré-definidas com base na média final obtida.
+-> Sistema de Avaliações: Registro de notas (0.0 a 10.0) e resenhas textuais. Os álbuns recebem classificações em categorias pré-definidas com base na média final obtida (Masterpiece, É o Aço, Bom, Meia Boca, Ruim, Absolute Porcaria).
 
 -> Rankings e Estatísticas: Tabelas de classificação gerais para os álbuns avaliados e um ranking de curadores baseado na média das notas de suas respectivas indicações.
 
 -> Histórico e Migração: Registro do histórico de edições concluídas e ferramenta de cadastro retroativo para importação de dados de reuniões anteriores.
 
--> Gerenciamento de Perfil: Área do usuário para atualização de credenciais, alteração de avatar e visualização do histórico pessoal de resenhas.
+-> Gerenciamento de Perfil: Área do usuário para atualização de credenciais, alteração de foto de perfil (com upload direto do computador ou link web) e visualização do histórico pessoal de resenhas.
 
 
 

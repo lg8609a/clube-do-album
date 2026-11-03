@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { TierBadge } from '../components/TierBadge';
 import { ScoreInput } from '../components/ScoreInput';
 import { UserAvatar } from '../components/UserAvatar';
+import { CountryFlag } from '../components/CountryFlag';
+import { AlbumTracklist } from '../components/AlbumTracklist';
 import {
   Disc3,
   Star,
@@ -196,8 +198,9 @@ export const AlbumDetailPage: React.FC = () => {
               <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
                 {album.titulo}
               </h1>
-              <p className="text-lg sm:text-xl text-zinc-300 font-medium mt-1">
-                {album.artista}{' '}
+              <p className="text-lg sm:text-xl text-zinc-300 font-medium mt-1 flex items-center gap-2 flex-wrap">
+                <span>{album.artista}</span>
+                {album.paisOrigem && <CountryFlag countryCode={album.paisOrigem} size="md" />}
                 {album.anoLancamento > 0 && (
                   <span className="text-zinc-500 font-mono text-base">
                     ({album.anoLancamento})
@@ -275,6 +278,9 @@ export const AlbumDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Album Tracklist Section */}
+      <AlbumTracklist faixas={album.faixas} />
 
       {/* Review Submission Section */}
       <section className="glass-panel rounded-3xl p-6 sm:p-10 shadow-xl space-y-6 border border-white/[0.08]">

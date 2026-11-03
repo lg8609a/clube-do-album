@@ -4,6 +4,7 @@ using ClubeDoAlbum.Api.DTOs;
 using ClubeDoAlbum.Api.Models.Entities;
 using ClubeDoAlbum.Api.Models.Enums;
 using ClubeDoAlbum.Api.Services.Spotify;
+using ClubeDoAlbum.Api.Services.MusicBrainz;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +16,16 @@ public class AlbumsController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly ISpotifyService _spotifyService;
+    private readonly IMusicBrainzService _musicBrainzService;
 
-    public AlbumsController(AppDbContext context, ISpotifyService spotifyService)
+    public AlbumsController(
+        AppDbContext context,
+        ISpotifyService spotifyService,
+        IMusicBrainzService musicBrainzService)
     {
         _context = context;
         _spotifyService = spotifyService;
+        _musicBrainzService = musicBrainzService;
     }
 
     /// <summary>
@@ -80,6 +86,7 @@ public class AlbumsController : ControllerBase
                 CapaUrl = a.CapaUrl,
                 SpotifyUrl = a.SpotifyUrl,
                 SpotifyId = a.SpotifyId,
+                PaisOrigem = a.PaisOrigem,
                 Status = a.Status.ToString(),
                 NotaMedia = a.NotaMedia,
                 TotalAvaliacoes = a.Avaliacoes.Count,
@@ -128,6 +135,7 @@ public class AlbumsController : ControllerBase
             CapaUrl = album.CapaUrl,
             SpotifyUrl = album.SpotifyUrl,
             SpotifyId = album.SpotifyId,
+            PaisOrigem = album.PaisOrigem,
             Status = album.Status.ToString(),
             NotaMedia = album.NotaMedia,
             TotalAvaliacoes = album.Avaliacoes.Count,
@@ -163,6 +171,28 @@ public class AlbumsController : ControllerBase
                 })
                 .ToList()
         };
+
+        // 1. Se ainda não tem país de origem cadastrado, resolve via MusicBrainz e salva no banco
+        if (string.IsNullOrWhiteSpace(dto.PaisOrigem) && !string.IsNullOrWhiteSpace(album.Artista))
+        {
+            var country = await _musicBrainzService.ObterPaisOrigemArtistaAsync(album.Artista);
+            if (!string.IsNullOrWhiteSpace(country))
+            {
+                dto.PaisOrigem = country;
+                var albumDb = await _context.Albums.FindAsync(id);
+                if (albumDb != null)
+                {
+                    albumDb.PaisOrigem = country;
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
+        // 2. Busca lista de faixas do Spotify sob demanda (com cache em memória de 24h)
+        if (!string.IsNullOrWhiteSpace(album.SpotifyId))
+        {
+            dto.Faixas = await _spotifyService.GetAlbumTracksAsync(album.SpotifyId);
+        }
 
         return Ok(dto);
     }
@@ -282,6 +312,12 @@ public class AlbumsController : ControllerBase
             edicaoTema = ed?.Tema;
         }
 
+        string? paisOrigem = request.PaisOrigem?.Trim()?.ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(paisOrigem) && !string.IsNullOrWhiteSpace(artista))
+        {
+            paisOrigem = await _musicBrainzService.ObterPaisOrigemArtistaAsync(artista);
+        }
+
         var album = new Album
         {
             Titulo = titulo,
@@ -290,6 +326,7 @@ public class AlbumsController : ControllerBase
             CapaUrl = capaUrl,
             SpotifyUrl = spotifyUrl,
             SpotifyId = spotifyId,
+            PaisOrigem = paisOrigem,
             Status = statusInicial,
             EdicaoId = edicaoId,
             IndicadoPorUserId = indicadoPorId,
@@ -326,6 +363,7 @@ public class AlbumsController : ControllerBase
             CapaUrl = album.CapaUrl,
             SpotifyUrl = album.SpotifyUrl,
             SpotifyId = album.SpotifyId,
+            PaisOrigem = album.PaisOrigem,
             Status = album.Status.ToString(),
             NotaMedia = album.NotaMedia,
             TotalAvaliacoes = 0,
@@ -396,6 +434,12 @@ public class AlbumsController : ControllerBase
             edicaoId = edicao.Id;
         }
 
+        string? paisOrigem = request.PaisOrigem?.Trim()?.ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(paisOrigem) && !string.IsNullOrWhiteSpace(artista))
+        {
+            paisOrigem = await _musicBrainzService.ObterPaisOrigemArtistaAsync(artista);
+        }
+
         var album = new Album
         {
             Titulo = titulo,
@@ -404,6 +448,7 @@ public class AlbumsController : ControllerBase
             CapaUrl = capaUrl,
             SpotifyUrl = spotifyUrl,
             SpotifyId = spotifyId,
+            PaisOrigem = paisOrigem,
             Status = AlbumStatus.JaOuvido,
             EdicaoId = edicaoId,
             IndicadoPorUserId = indicadoPorId,
@@ -557,7 +602,7 @@ public class AlbumsController : ControllerBase
 
         if (album == null) return null;
 
-        return new AlbumDetailDto
+        var dto = new AlbumDetailDto
         {
             Id = album.Id,
             Titulo = album.Titulo,
@@ -566,6 +611,7 @@ public class AlbumsController : ControllerBase
             CapaUrl = album.CapaUrl,
             SpotifyUrl = album.SpotifyUrl,
             SpotifyId = album.SpotifyId,
+            PaisOrigem = album.PaisOrigem,
             Status = album.Status.ToString(),
             NotaMedia = album.NotaMedia,
             TotalAvaliacoes = album.Avaliacoes.Count,
@@ -601,6 +647,13 @@ public class AlbumsController : ControllerBase
                 })
                 .ToList()
         };
+
+        if (!string.IsNullOrWhiteSpace(album.SpotifyId))
+        {
+            dto.Faixas = await _spotifyService.GetAlbumTracksAsync(album.SpotifyId);
+        }
+
+        return dto;
     }
 }
 

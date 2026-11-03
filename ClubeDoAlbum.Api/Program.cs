@@ -18,6 +18,7 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<ClubeDoAlbum.Api.Services.Spotify.SpotifySettings>(
     builder.Configuration.GetSection("Spotify"));
 builder.Services.AddHttpClient<ClubeDoAlbum.Api.Services.Spotify.ISpotifyService, ClubeDoAlbum.Api.Services.Spotify.SpotifyService>();
+builder.Services.AddHttpClient<ClubeDoAlbum.Api.Services.MusicBrainz.IMusicBrainzService, ClubeDoAlbum.Api.Services.MusicBrainz.MusicBrainzService>();
 
 // Serviço de Token JWT
 builder.Services.AddScoped<ClubeDoAlbum.Api.Services.Auth.ITokenService, ClubeDoAlbum.Api.Services.Auth.TokenService>();

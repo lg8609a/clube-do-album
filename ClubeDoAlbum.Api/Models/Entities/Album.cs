@@ -21,6 +21,7 @@ public class Album
     public int AnoLancamento { get; set; }
     public string? CapaUrl { get; set; }
     public string? SpotifyUrl { get; set; }
+    public string? PaisOrigem { get; set; } // Código ISO 3166-1 alpha-2 da banda (ex: "GB", "BR", "US")
 
     // Status no fluxo de votação do clube
     public AlbumStatus Status { get; set; } = AlbumStatus.EstaSemana;

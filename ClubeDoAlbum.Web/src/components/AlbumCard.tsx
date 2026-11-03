@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Album } from '../types';
 import { TierBadge } from './TierBadge';
 import { UserAvatar } from './UserAvatar';
+import { CountryFlag } from './CountryFlag';
 import { Disc3, MessageSquare, Star, User } from 'lucide-react';
 
 interface AlbumCardProps {
@@ -62,8 +63,10 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({ album }) => {
           <h3 className="font-display font-bold text-white text-sm leading-snug group-hover:text-rose-400 transition-colors line-clamp-1">
             {album.titulo}
           </h3>
-          <p className="text-zinc-400 text-xs font-medium line-clamp-1">
-            {album.artista} {album.anoLancamento > 0 && `• ${album.anoLancamento}`}
+          <p className="text-zinc-400 text-xs font-medium line-clamp-1 flex items-center gap-1.5 flex-wrap">
+            <span>{album.artista}</span>
+            {album.paisOrigem && <CountryFlag countryCode={album.paisOrigem} size="xs" />}
+            {album.anoLancamento > 0 && <span>• {album.anoLancamento}</span>}
           </p>
         </div>
 

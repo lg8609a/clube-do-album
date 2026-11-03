@@ -26,6 +26,16 @@ export interface Review {
   usuario: User;
 }
 
+export interface TrackItem {
+  numero: number;
+  titulo: string;
+  duracaoMs: number;
+  duracaoFormatada: string;
+  spotifyUrl?: string;
+  explicit: boolean;
+  discoNumero: number;
+}
+
 export interface Album {
   id: string;
   titulo: string;
@@ -34,6 +44,7 @@ export interface Album {
   capaUrl?: string;
   spotifyUrl?: string;
   spotifyId?: string;
+  paisOrigem?: string;
   status: AlbumStatus;
   notaMedia: number;
   classificacao: TierClassificacao;
@@ -46,6 +57,7 @@ export interface Album {
 
 export interface AlbumDetail extends Album {
   avaliacoes: Review[];
+  faixas?: TrackItem[];
 }
 
 export interface TopComment {

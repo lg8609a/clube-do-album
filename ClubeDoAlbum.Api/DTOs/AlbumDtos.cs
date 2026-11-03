@@ -1,4 +1,5 @@
 using ClubeDoAlbum.Api.Common;
+using ClubeDoAlbum.Api.Services.Spotify;
 
 namespace ClubeDoAlbum.Api.DTOs;
 
@@ -16,6 +17,7 @@ public class CreateAlbumDto
     public string? CapaUrl { get; set; }
     public string? SpotifyUrl { get; set; }
     public string? SpotifyId { get; set; }
+    public string? PaisOrigem { get; set; }
 
     public Guid? EdicaoId { get; set; }
     public Guid? IndicadoPorUserId { get; set; }
@@ -35,6 +37,7 @@ public class AlbumResponseDto
     public string? CapaUrl { get; set; }
     public string? SpotifyUrl { get; set; }
     public string? SpotifyId { get; set; }
+    public string? PaisOrigem { get; set; }
     public string Status { get; set; } = string.Empty;
     public decimal NotaMedia { get; set; }
     public string Classificacao => ClassificacaoNotaHelper.ObterClassificacao(NotaMedia);
@@ -50,6 +53,7 @@ public class AlbumResponseDto
 public class AlbumDetailDto : AlbumResponseDto
 {
     public List<ReviewResponseDto> Avaliacoes { get; set; } = new();
+    public List<SpotifyTrackDto> Faixas { get; set; } = new();
 }
 
 public class UpdateAlbumStatusDto
@@ -70,6 +74,7 @@ public class CadastrarAlbumRetroativoDto
     public string? CapaUrl { get; set; }
     public string? SpotifyUrl { get; set; }
     public string? SpotifyId { get; set; }
+    public string? PaisOrigem { get; set; }
 
     // Quem indicou: pode passar o nome da pessoa na planilha ou o UserId existente
     public string? IndicadoPorNome { get; set; }

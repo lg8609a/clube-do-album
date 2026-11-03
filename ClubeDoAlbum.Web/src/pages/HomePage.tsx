@@ -7,6 +7,7 @@ import { AlbumCard } from '../components/AlbumCard';
 import { TierBadge } from '../components/TierBadge';
 import { SoundwaveVisualizer } from '../components/SoundwaveVisualizer';
 import { UserAvatar } from '../components/UserAvatar';
+import { CountryFlag } from '../components/CountryFlag';
 import {
   Disc3,
   Flame,
@@ -329,8 +330,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
                     {destaque.titulo}
                   </h2>
-                  <p className="text-base sm:text-xl text-zinc-300 font-medium">
-                    {destaque.artista}{' '}
+                  <p className="text-base sm:text-xl text-zinc-300 font-medium flex items-center gap-2 flex-wrap">
+                    <span>{destaque.artista}</span>
+                    {destaque.paisOrigem && <CountryFlag countryCode={destaque.paisOrigem} size="sm" />}
                     {destaque.anoLancamento > 0 && (
                       <span className="text-zinc-500 font-mono text-base">
                         ({destaque.anoLancamento})
