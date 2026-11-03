@@ -4,7 +4,7 @@ import { rankingApi } from '../services/api';
 import { CuratorRankingItem } from '../types';
 import { TierBadge } from '../components/TierBadge';
 import { UserAvatar } from '../components/UserAvatar';
-import { Trophy, Users, Disc3, ThumbsUp, ThumbsDown, Star, Skull } from 'lucide-react';
+import { Trophy, Users, Disc3, ThumbsUp, ThumbsDown, Star, Skull, ArrowRight } from 'lucide-react';
 
 export const CuratorsPage: React.FC = () => {
   const [curators, setCurators] = useState<CuratorRankingItem[]>([]);
@@ -94,7 +94,7 @@ export const CuratorsPage: React.FC = () => {
                 }`}
               >
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                  {/* Position & Member Info */}
+                  {/* Position & Member Info (Clickable link to Curator Profile) */}
                   <div className="md:col-span-5 flex items-center gap-4">
                     <div
                       className={`w-11 h-11 rounded-xl flex items-center justify-center font-display font-black text-base shrink-0 ${
@@ -108,16 +108,31 @@ export const CuratorsPage: React.FC = () => {
                       {c.posicao}º
                     </div>
 
-                    <UserAvatar name={c.nome} avatarUrl={c.avatarUrl} size="lg" />
+                    <Link
+                      to={`/curador/${c.userId}`}
+                      className="flex items-center gap-3.5 min-w-0 group cursor-pointer"
+                      title={`Ver histórico completo de indicações de ${c.nome}`}
+                    >
+                      <UserAvatar
+                        name={c.nome}
+                        avatarUrl={c.avatarUrl}
+                        size="lg"
+                        className="group-hover:scale-105 transition-transform"
+                      />
 
-                    <div className="min-w-0">
-                      <h3 className="font-display font-bold text-base text-white truncate leading-snug">
-                        {c.nome}
-                      </h3>
-                      <p className="text-xs text-zinc-400 font-mono">
-                        {c.totalAlbunsAvaliados} {c.totalAlbunsAvaliados === 1 ? 'disco avaliado' : 'discos avaliados'}
-                      </p>
-                    </div>
+                      <div className="min-w-0">
+                        <h3 className="font-display font-bold text-base text-white group-hover:text-rose-400 transition-colors truncate leading-snug flex items-center gap-1.5">
+                          <span>{c.nome}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-rose-400 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
+                        </h3>
+                        <p className="text-xs text-zinc-400 font-mono">
+                          {c.totalAlbunsAvaliados} {c.totalAlbunsAvaliados === 1 ? 'disco avaliado' : 'discos avaliados'}
+                        </p>
+                        <span className="text-[10px] font-mono text-rose-400/80 group-hover:text-rose-300 transition-colors block mt-0.5">
+                          Ver todas as {c.totalAlbunsIndicados} indicações &rarr;
+                        </span>
+                      </div>
+                    </Link>
                   </div>
 
                   {/* Curator Average Score */}

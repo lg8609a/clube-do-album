@@ -49,6 +49,10 @@ export const authApi = {
     const res = await api.get<User[]>('/auth/users');
     return res.data;
   },
+  getUserById: async (id: string) => {
+    const res = await api.get<User>(`/auth/users/${id}`);
+    return res.data;
+  },
   updateProfile: async (dados: { nome: string; avatarUrl?: string }) => {
     const res = await api.put<User>('/auth/profile', dados);
     return res.data;

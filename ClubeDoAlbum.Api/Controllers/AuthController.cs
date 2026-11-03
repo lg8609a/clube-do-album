@@ -145,6 +145,21 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Retorna os dados públicos de um membro pelo ID.
+    /// </summary>
+    [HttpGet("users/{id:guid}")]
+    public async Task<ActionResult<UserDto>> GetUserById(Guid id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound(new { message = "Membro não encontrado." });
+        }
+
+        return Ok(MapToUserDto(user));
+    }
+
+    /// <summary>
     /// Atualiza dados de perfil (Nome, AvatarUrl) do usuário logado.
     /// </summary>
     [HttpPut("profile")]

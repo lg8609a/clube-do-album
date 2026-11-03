@@ -13,6 +13,7 @@ import { CatalogPage } from './pages/CatalogPage';
 import { EdicoesPage } from './pages/EdicoesPage';
 import { RankingPage } from './pages/RankingPage';
 import { CuratorsPage } from './pages/CuratorsPage';
+import { CuratorProfilePage } from './pages/CuratorProfilePage';
 import { MyReviewsPage } from './pages/MyReviewsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { LoginPage } from './pages/LoginPage';
@@ -72,6 +73,8 @@ function App() {
               <Route path="/catalogo" element={<CatalogPage key={refreshTrigger} />} />
               <Route path="/ranking" element={<RankingPage key={refreshTrigger} />} />
               <Route path="/curadores" element={<CuratorsPage key={refreshTrigger} />} />
+              <Route path="/curador/:userId" element={<CuratorProfilePage />} />
+              <Route path="/membro/:userId" element={<CuratorProfilePage />} />
               <Route path="/minhas-avaliacoes" element={<MyReviewsPage />} />
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="/login" element={<LoginPage />} />

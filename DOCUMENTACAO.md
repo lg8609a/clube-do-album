@@ -141,6 +141,22 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - Criação e montagem do modal `EditDataReuniaoModal.tsx` na `HomePage.tsx` e `EdicoesPage.tsx` com calendário interativo escuro e botão opcional de "Limpar Data".
   - O botão da data exibe o ícone de edição e abre o modal imediatamente ao clique do administrador, enquanto membros comuns visualizam a data em modo somente leitura.
 
+### Fase 14: Rolagem Horizontal de Discos & Histórico Completo de Indicações por Membro
+- **Barra de Rolagem Horizontal Interativa ("Discos da Edição"):**
+  - **Problema:** No carrossel superior da Home, quando uma semana temática recebia mais de 5 ou 6 discos, os álbuns da ponta direita ficavam ocultos sem barra de rolagem visual, dependendo exclusivamente das setas do teclado.
+  - **Solução Implementada:** Remoção do ocultamento (`scrollbar-none`) e criação de estilização customizada (`.custom-horizontal-scrollbar`) com trilho escuro, indicador rosa sutil (`rgba(244, 63, 94, 0.5)`) e cantos arredondados, permitindo arrastar com mouse em qualquer navegador desktop. Além disso, foram inseridos botões direcionais no cabeçalho com rolagem assistida e suave (`ChevronLeft` e `ChevronRight` com `scrollBy`).
+- **Página de Perfil e Histórico do Curador (`/curador/:userId`):**
+  - **Contexto & Necessidade:** O ranking de curadores exibia de forma resumida apenas o melhor e o pior disco indicado por cada amigo. Os membros precisavam de um espaço dedicado para explorar o histórico completo de recomendações de cada colega ordenado por notas.
+  - **Implementação no Backend:**
+    - Criação do endpoint `GET /api/auth/users/{id:guid}` no `AuthController.cs` para recuperação dos dados públicos do membro.
+    - Utilização do filtro existente `GET /api/albums?userId={id}` e `GET /api/reviews/user/{id}`.
+  - **Implementação no Frontend (`CuratorProfilePage.tsx`):**
+    - Perfil completo com avatar, selo de colocação no ranking de curadores, média geral ponderada das indicações e classificação (`TierBadge`).
+    - Métricas em cards: total de indicações, total avaliado, melhor e pior recomendação.
+    - Listagem de discos indicados ordenados por nota média decrescente por padrão, com badges de colocação (`#1`, `#2`), bandeira do país da banda, ano e links diretos para avaliação e Spotify.
+    - Alternador de abas permitindo alternar entre **"Discos Indicados"** e **"Avaliações Feitas pelo Membro"**.
+    - Links para o perfil de curador integrados no Ranking de Curadores (`CuratorsPage.tsx`), na Home (`HomePage.tsx`), nas Edições (`EdicoesPage.tsx`) e na tela de detalhes do álbum (`AlbumDetailPage.tsx`).
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas

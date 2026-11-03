@@ -165,3 +165,24 @@
     radial-gradient(circle at center, transparent 88%, rgba(255,255,255,0.03) 89%, transparent 90%),
     conic-gradient(from 45deg, #09090b 0deg, #18181b 45deg, #09090b 90deg, #18181b 135deg, #09090b 180deg, #18181b 225deg, #09090b 270deg, #18181b 315deg, #09090b 360deg);
 }
+
+/* Custom visible horizontal scrollbar for discos list */
+.custom-horizontal-scrollbar::-webkit-scrollbar {
+  height: 8px !important;
+}
+.custom-horizontal-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-radius: 9999px !important;
+}
+.custom-horizontal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(244, 63, 94, 0.5) !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.custom-horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 63, 94, 0.8) !important;
+}
+.custom-horizontal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(244, 63, 94, 0.5) rgba(255, 255, 255, 0.04);
+}

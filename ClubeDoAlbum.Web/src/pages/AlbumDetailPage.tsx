@@ -229,19 +229,28 @@ export const AlbumDetailPage: React.FC = () => {
               </span>
             </div>
 
-            {/* Curator Highlight */}
+            {/* Curator Highlight (Clickable to curator profile) */}
             {album.indicadoPor ? (
-              <div className="flex items-center gap-3 p-3 bg-white/[0.03] border border-white/[0.08] rounded-2xl max-w-sm backdrop-blur-md shadow-sm">
-                <UserAvatar name={album.indicadoPor.nome} avatarUrl={album.indicadoPor.avatarUrl} size="md" />
+              <Link
+                to={`/curador/${album.indicadoPor.id}`}
+                className="flex items-center gap-3 p-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-rose-500/40 rounded-2xl max-w-sm backdrop-blur-md shadow-sm transition-all group cursor-pointer"
+                title={`Ver histórico de indicações de ${album.indicadoPor.nome}`}
+              >
+                <UserAvatar
+                  name={album.indicadoPor.nome}
+                  avatarUrl={album.indicadoPor.avatarUrl}
+                  size="md"
+                  className="group-hover:scale-105 transition-transform"
+                />
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-rose-400 font-bold block">
-                    Curadoria Oficial
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-rose-400 group-hover:text-rose-300 font-bold block">
+                    Curadoria Oficial &rarr;
                   </span>
-                  <span className="text-sm font-display font-black text-white">
+                  <span className="text-sm font-display font-black text-white group-hover:text-rose-200 transition-colors">
                     Indicado por {album.indicadoPor.nome}
                   </span>
                 </div>
-              </div>
+              </Link>
             ) : null}
 
             {/* Action Buttons */}

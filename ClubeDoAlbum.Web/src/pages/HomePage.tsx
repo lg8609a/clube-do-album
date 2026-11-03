@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { albumsApi, rankingApi, edicoesApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -44,6 +44,14 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isEditDateModalOpen, setIsEditDateModalOpen] = useState(false);
+  const discosScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollDiscos = (direction: 'left' | 'right') => {
+    if (discosScrollRef.current) {
+      const amount = direction === 'left' ? -260 : 260;
+      discosScrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
 
   const formatarData = (dataStr?: string | null) => {
     if (!dataStr) return '';

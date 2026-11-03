@@ -206,17 +206,21 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
 
                         {/* Quem Indicou */}
                         {alb.indicadoPor && (
-                          <div className="flex items-center gap-1.5 mt-2">
+                          <Link
+                            to={`/curador/${alb.indicadoPor.id}`}
+                            className="flex items-center gap-1.5 mt-2 group/curator hover:text-rose-400 transition"
+                            title={`Ver histórico de indicações de ${alb.indicadoPor.nome}`}
+                          >
                             <UserAvatar
                               name={alb.indicadoPor.nome}
                               avatarUrl={alb.indicadoPor.avatarUrl}
                               size="xs"
-                              className="!w-4 !h-4 !rounded-full"
+                              className="!w-4 !h-4 !rounded-full group-hover/curator:scale-110 transition-transform"
                             />
-                            <span className="text-[11px] text-zinc-400 truncate">
-                              Por: <strong className="text-zinc-200">{alb.indicadoPor.nome}</strong>
+                            <span className="text-[11px] text-zinc-400 group-hover/curator:text-rose-300 truncate">
+                              Por: <strong className="text-zinc-200 group-hover/curator:text-rose-200">{alb.indicadoPor.nome}</strong>
                             </span>
-                          </div>
+                          </Link>
                         )}
                       </div>
 
@@ -322,9 +326,13 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
                             {vencedor.titulo} - {vencedor.artista}
                           </Link>
                           {vencedor.indicadoPor && (
-                            <p className="text-[11px] text-zinc-400 font-mono">
-                              Curadoria: <strong className="text-zinc-200">{vencedor.indicadoPor.nome}</strong>
-                            </p>
+                            <Link
+                              to={`/curador/${vencedor.indicadoPor.id}`}
+                              className="text-[11px] text-zinc-400 font-mono hover:text-rose-300 transition block"
+                              title={`Ver histórico de indicações de ${vencedor.indicadoPor.nome}`}
+                            >
+                              Curadoria: <strong className="text-zinc-200 hover:text-rose-200">{vencedor.indicadoPor.nome}</strong>
+                            </Link>
                           )}
                         </div>
                       </div>
@@ -362,9 +370,13 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
                             <p className="text-[11px] text-zinc-400 truncate">{alb.artista}</p>
 
                             {alb.indicadoPor && (
-                              <p className="text-[10px] text-zinc-400 mt-1 truncate font-mono">
-                                Por: <strong className="text-zinc-300">{alb.indicadoPor.nome}</strong>
-                              </p>
+                              <Link
+                                to={`/curador/${alb.indicadoPor.id}`}
+                                className="text-[10px] text-zinc-400 mt-1 truncate font-mono hover:text-rose-300 transition block"
+                                title={`Ver histórico de indicações de ${alb.indicadoPor.nome}`}
+                              >
+                                Por: <strong className="text-zinc-300 hover:text-rose-200">{alb.indicadoPor.nome}</strong>
+                              </Link>
                             )}
                           </div>
                         </div>
