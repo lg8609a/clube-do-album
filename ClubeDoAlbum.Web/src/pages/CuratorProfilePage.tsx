@@ -196,54 +196,64 @@ export const CuratorProfilePage: React.FC = () => {
         {/* Glow de fundo */}
         <div className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-rose-600/10 blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-          {/* Avatar & Informações do Membro */}
-          <div className="flex items-center gap-5 sm:gap-6">
-            <UserAvatar
-              name={member.nome}
-              avatarUrl={member.avatarUrl}
-              size="xl"
-              className="border-2 border-white/20 shadow-2xl shrink-0"
-            />
-            <div className="space-y-1.5 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-rose-400 font-bold">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-start justify-between gap-8 sm:gap-10">
+          {/* Avatar com tamanho de Capa de Álbum & Informações do Membro */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 min-w-0 flex-1">
+            <div className="relative group shrink-0">
+              <UserAvatar
+                name={member.nome}
+                avatarUrl={member.avatarUrl}
+                size="2xl"
+                className="border-2 border-white/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] shrink-0 group-hover:scale-[1.02] transition-transform duration-300"
+              />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
+            </div>
+
+            <div className="space-y-3 min-w-0 text-center sm:text-left flex-1">
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-rose-400 font-bold px-2.5 py-0.5 rounded-full bg-rose-950/40 border border-rose-500/30">
                   Curador Oficial
                 </span>
                 {curatorStats?.posicao && (
                   <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold flex items-center gap-1">
-                    <Trophy className="w-3 h-3 text-amber-400" />
+                    <Trophy className="w-3.5 h-3.5 text-amber-400" />
                     {curatorStats.posicao}º Lugar no Ranking
+                  </span>
+                )}
+                {member.isAdmin && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-950/60 border border-rose-500/40 text-rose-300 font-mono text-[11px] font-bold">
+                    <Shield className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Admin</span>
                   </span>
                 )}
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-display font-black text-white uppercase tracking-tight truncate leading-tight">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-black text-white uppercase tracking-tight truncate leading-tight">
                 {member.nome}
               </h1>
 
-              <p className="text-xs sm:text-sm text-zinc-400 font-mono">
+              <p className="text-xs sm:text-sm text-zinc-400 font-mono max-w-xl">
                 Histórico musical completo e histórico de indicações no Clube do Álbum
               </p>
             </div>
           </div>
 
           {/* Média Geral de Curadoria */}
-          <div className="flex items-center md:flex-col md:items-end gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] shrink-0">
-            <div className="text-left md:text-right">
+          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] shrink-0 shadow-lg w-full lg:w-auto">
+            <div className="text-left sm:text-right">
               <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block font-bold">
                 Média das Indicações
               </span>
               <div className="flex items-center gap-2 mt-1">
-                <Star className="w-6 h-6 text-amber-400 fill-amber-400" />
-                <span className="font-mono font-black text-3xl sm:text-4xl text-white tabular-nums">
+                <Star className="w-6 h-6 sm:w-7 sm:h-7 text-amber-400 fill-amber-400" />
+                <span className="font-mono font-black text-3xl sm:text-5xl text-white tabular-nums">
                   {mediaCalculada.toFixed(1)}
                 </span>
                 <span className="text-xs text-zinc-500 font-mono">/10</span>
               </div>
             </div>
 
-            <TierBadge classificacao={getTier(mediaCalculada)} size="md" />
+            <TierBadge classificacao={getTier(mediaCalculada)} size="lg" />
           </div>
         </div>
 

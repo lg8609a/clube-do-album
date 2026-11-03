@@ -181,6 +181,12 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
     - **Álbuns Pendentes:** Mantêm 100% de brilho e destaque com indicador âmbar pulsante.
   - **Hero do Vinil & Grid:** Se o disco em foco já foi avaliado pelo membro, o botão principal transiciona para *"Editar Minha Nota & Review"* e exibe um selo verde de alta visibilidade com a nota pessoal atribuída.
 
+### Fase 17: Redimensionamento e Destaque do Avatar no Perfil do Curador
+- **Contexto & Necessidade:** No perfil dedicado de curador do membro (`/curador/:userId`), a foto do avatar de tamanho padrão (`w-20 h-20`) ficava desproporcionalmente pequena em relação ao cabeçalho e às capas dos discos exibidos na página.
+- **Implementação no Frontend (React):**
+  - **Novo Padrão Visual em `UserAvatar.tsx`:** Adição do modificador de tamanho `size="2xl"` (`w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64`), conferindo ao avatar as exatas proporções quadradas e imponentes de uma capa de disco de vinil (`rounded-2xl`), com borda chanfrada reflexiva e sombra profunda (`shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)]`).
+  - **Alinhamento Responsivo em `CuratorProfilePage.tsx`:** Reorganização do cabeçalho da página para layout flexível e balanceado (`flex-col sm:flex-row items-center sm:items-start`), mantendo a foto em evidência ao lado do nome do curador, badges de posição no ranking e média geral das indicações.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas

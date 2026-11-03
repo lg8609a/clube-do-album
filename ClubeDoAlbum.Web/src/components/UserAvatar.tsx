@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface UserAvatarProps {
   name: string;
   avatarUrl?: string | null;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
 }
 
@@ -21,6 +21,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     md: 'w-10 h-10 text-sm rounded-xl',
     lg: 'w-14 h-14 text-lg rounded-2xl',
     xl: 'w-20 h-20 text-2xl rounded-2xl',
+    '2xl': 'w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 text-5xl sm:text-6xl rounded-2xl',
   };
 
   const initial = (name?.trim()?.[0] || 'U').toUpperCase();

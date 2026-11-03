@@ -47,7 +47,7 @@ Backend (ClubeDoAlbum.Api)
 
 -> Rankings e Estatísticas: Tabelas de classificação gerais para os álbuns avaliados e um ranking de curadores baseado na média das notas de suas respectivas indicações.
 
--> Perfil de Curador & Histórico de Indicações: Acesso ao perfil individual de qualquer membro com histórico completo de álbuns indicados ordenados por nota média, badges de colocação, estatísticas gerais (média do curador, melhor e pior indicação) e lista de resenhas dadas.
+-> Perfil de Curador & Histórico de Indicações: Acesso ao perfil individual de qualquer membro com avatar destacado em proporção de capa de álbum, histórico completo de álbuns indicados com histórico completo de álbuns indicados ordenados por nota média, badges de colocação, estatísticas gerais (média do curador, melhor e pior indicação) e lista de resenhas dadas.
 
 -> Histórico de Semanas: Registro cronológico de todas as edições e semanas concluídas, com temas, notas médias, álbuns ouvidos e histórico consolidado do clube.
 
