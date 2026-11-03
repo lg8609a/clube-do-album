@@ -24,6 +24,8 @@ import {
   AlertCircle,
   Radio,
   Pencil,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -219,17 +221,19 @@ export const HomePage: React.FC<HomePageProps> = ({
                   const parcial = m.totalIndicados === 1;
 
                   return (
-                    <div
+                    <Link
+                      to={`/curador/${m.userId}`}
                       key={m.userId}
-                      className={`flex items-center gap-3 p-2.5 rounded-xl border backdrop-blur-md transition-all duration-200 ${
+                      title={`Ver perfil e todas as indicações de ${m.nome}`}
+                      className={`flex items-center gap-3 p-2.5 rounded-xl border backdrop-blur-md transition-all duration-200 hover:scale-[1.03] hover:border-rose-500/50 group cursor-pointer ${
                         completo
                           ? 'bg-emerald-950/20 border-emerald-500/30 text-zinc-200 shadow-[0_0_12px_rgba(16,185,129,0.1)]'
                           : parcial
                           ? 'bg-amber-950/20 border-amber-500/30 text-zinc-200 shadow-[0_0_12px_rgba(245,158,11,0.1)]'
-                          : 'bg-white/[0.02] border-white/[0.06] text-zinc-500'
+                          : 'bg-white/[0.02] border-white/[0.06] text-zinc-500 hover:text-zinc-300'
                       }`}
                     >
-                      <UserAvatar name={m.nome} avatarUrl={m.avatarUrl} size="sm" />
+                      <UserAvatar name={m.nome} avatarUrl={m.avatarUrl} size="sm" className="group-hover:scale-110 transition-transform" />
 
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-white text-xs truncate leading-snug">
@@ -261,7 +265,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                           )}
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -276,29 +280,58 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="space-y-8">
             {/* Seletor rápido de discos caso haja múltiplos na semana */}
             {albunsSemana.length > 1 && (
-              <div className="space-y-2.5 pb-2">
+              <div className="space-y-3 pb-3">
                 <div className="flex items-center justify-between text-xs font-mono text-zinc-400">
-                  <span className="uppercase tracking-wider">
-                    Discos da Edição ({albunsSemana.length} selecionados):
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="uppercase tracking-wider font-bold text-zinc-300">
+                      Discos da Edição ({albunsSemana.length} selecionados):
+                    </span>
+                    {/* Botões direcionais para rolar a lista */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => scrollDiscos('left')}
+                        className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-rose-950/80 hover:text-rose-300 hover:border-rose-500/40 border border-white/10 text-zinc-300 transition-all flex items-center gap-1 text-[11px] font-mono font-bold cursor-pointer shadow-sm"
+                        title="Rolar discos para a esquerda"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Anterior</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => scrollDiscos('right')}
+                        className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-rose-950/80 hover:text-rose-300 hover:border-rose-500/40 border border-white/10 text-zinc-300 transition-all flex items-center gap-1 text-[11px] font-mono font-bold cursor-pointer shadow-sm"
+                        title="Rolar discos para a direita"
+                      >
+                        <span className="hidden sm:inline">Próximo</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
                   <SoundwaveVisualizer isPlaying barCount={8} />
                 </div>
 
-                <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+                {/* Container horizontal COM barra de rolagem visível */}
+                <div
+                  ref={discosScrollRef}
+                  className="flex gap-2.5 overflow-x-auto pb-4 pt-1 custom-horizontal-scrollbar scroll-smooth"
+                  tabIndex={0}
+                  aria-label="Discos da edição"
+                >
                   {albunsSemana.map((a, idx) => (
                     <button
                       key={a.id}
                       onClick={() => setSelectedAlbumIndex(idx)}
                       className={`flex items-center gap-3 p-2 rounded-xl border text-xs transition-all duration-200 shrink-0 cursor-pointer ${
                         selectedAlbumIndex === idx
-                          ? 'bg-rose-950/60 border-rose-500/60 text-white shadow-[0_0_16px_rgba(225,29,72,0.25)]'
+                          ? 'bg-rose-950/60 border-rose-500/60 text-white shadow-[0_0_16px_rgba(225,29,72,0.25)] ring-1 ring-rose-500/40'
                           : 'bg-white/[0.03] border-white/[0.06] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
                       }`}
                     >
                       <img
                         src={a.capaUrl || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17'}
                         alt={a.titulo}
-                        className="w-9 h-9 rounded-lg object-cover border border-white/10"
+                        className="w-9 h-9 rounded-lg object-cover border border-white/10 shrink-0"
                       />
                       <div className="text-left">
                         <p className="font-bold truncate max-w-[130px] text-xs leading-tight">
@@ -346,22 +379,27 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="lg:col-span-7 space-y-6">
                 {/* Curator Highlight Pill */}
                 {destaque.indicadoPor ? (
-                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-rose-950/60 via-zinc-900/80 to-transparent border border-rose-500/30 rounded-2xl shadow-[0_0_20px_rgba(225,29,72,0.15)] backdrop-blur-md">
+                  <Link
+                    to={`/curador/${destaque.indicadoPor.id}`}
+                    className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-rose-950/60 via-zinc-900/80 to-transparent border border-rose-500/30 hover:border-rose-500/60 rounded-2xl shadow-[0_0_20px_rgba(225,29,72,0.15)] backdrop-blur-md transition-all group cursor-pointer"
+                    title={`Ver perfil e todas as indicações de ${destaque.indicadoPor.nome}`}
+                  >
                     <UserAvatar
                       name={destaque.indicadoPor.nome}
                       avatarUrl={destaque.indicadoPor.avatarUrl}
                       size="md"
-                      className="border border-rose-500/50 shadow"
+                      className="border border-rose-500/50 shadow group-hover:scale-105 transition-transform"
                     />
                     <div>
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-rose-400 font-bold block">
-                        Curadoria Oficial desta Semana
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-rose-400 group-hover:text-rose-300 font-bold block flex items-center gap-1">
+                        <span>Curadoria Oficial desta Semana</span>
+                        <span className="text-rose-400">&rarr;</span>
                       </span>
-                      <span className="text-sm font-display font-black text-white">
+                      <span className="text-sm font-display font-black text-white group-hover:text-rose-200 transition-colors">
                         {destaque.indicadoPor.nome}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ) : (
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 glass-panel rounded-xl text-xs text-zinc-400 font-mono">
                     <Users className="w-3.5 h-3.5 text-rose-400" />
@@ -492,17 +530,22 @@ export const HomePage: React.FC<HomePageProps> = ({
 
                     {/* Curator badge floating on cover */}
                     {alb.indicadoPor && (
-                      <div className="absolute bottom-2.5 left-2.5 right-2.5 p-2 bg-black/85 backdrop-blur-md rounded-xl flex items-center gap-2 border border-white/10 shadow-lg">
+                      <Link
+                        to={`/curador/${alb.indicadoPor.id}`}
+                        className="absolute bottom-2.5 left-2.5 right-2.5 p-2 bg-black/85 hover:bg-black backdrop-blur-md rounded-xl flex items-center gap-2 border border-white/10 hover:border-rose-500/50 shadow-lg group/curator transition-all cursor-pointer z-10"
+                        title={`Ver perfil e todas as indicações de ${alb.indicadoPor.nome}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <UserAvatar
                           name={alb.indicadoPor.nome}
                           avatarUrl={alb.indicadoPor.avatarUrl}
                           size="xs"
-                          className="!rounded-full"
+                          className="!rounded-full group-hover/curator:scale-110 transition-transform"
                         />
-                        <span className="text-[11px] font-bold text-zinc-200 truncate">
-                          Por: {alb.indicadoPor.nome}
+                        <span className="text-[11px] font-bold text-zinc-200 group-hover/curator:text-rose-300 truncate">
+                          Por: {alb.indicadoPor.nome} &rarr;
                         </span>
-                      </div>
+                      </Link>
                     )}
                   </div>
 

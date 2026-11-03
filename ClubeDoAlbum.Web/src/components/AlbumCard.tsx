@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Album } from '../types';
 import { TierBadge } from './TierBadge';
 import { UserAvatar } from './UserAvatar';
@@ -11,6 +11,7 @@ interface AlbumCardProps {
 }
 
 export const AlbumCard: React.FC<AlbumCardProps> = ({ album }) => {
+  const navigate = useNavigate();
   return (
     <Link
       to={`/album/${album.id}`}
@@ -86,15 +87,23 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({ album }) => {
 
         {/* Curator Attribution */}
         {album.indicadoPor && (
-          <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 pt-0.5 truncate">
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate(`/curador/${album.indicadoPor?.id}`);
+            }}
+            className="flex items-center gap-1.5 text-[11px] text-zinc-400 pt-0.5 truncate hover:text-rose-300 transition-colors cursor-pointer group/cur"
+            title={`Ver perfil e todas as indicações de ${album.indicadoPor.nome}`}
+          >
             <UserAvatar
               name={album.indicadoPor.nome}
               avatarUrl={album.indicadoPor.avatarUrl}
               size="xs"
-              className="!w-4 !h-4 !rounded-full"
+              className="!w-4 !h-4 !rounded-full group-hover/cur:scale-110 transition-transform"
             />
             <span className="truncate">
-              Curadoria: <strong className="text-zinc-200 font-medium">{album.indicadoPor.nome}</strong>
+              Curadoria: <strong className="text-zinc-200 group-hover/cur:text-rose-200 font-medium">{album.indicadoPor.nome}</strong>
             </span>
           </div>
         )}

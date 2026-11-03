@@ -169,20 +169,21 @@
 /* Custom visible horizontal scrollbar for discos list */
 .custom-horizontal-scrollbar::-webkit-scrollbar {
   height: 8px !important;
+  display: block !important;
 }
 .custom-horizontal-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
   border-radius: 9999px !important;
 }
 .custom-horizontal-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(244, 63, 94, 0.5) !important;
+  background: #f43f5e !important;
   border-radius: 9999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 .custom-horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(244, 63, 94, 0.8) !important;
+  background: #fb7185 !important;
 }
 .custom-horizontal-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(244, 63, 94, 0.5) rgba(255, 255, 255, 0.04);
+  scrollbar-width: thin !important;
+  scrollbar-color: #f43f5e rgba(255, 255, 255, 0.08) !important;
 }
