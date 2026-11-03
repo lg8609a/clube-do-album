@@ -405,6 +405,17 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
           </div>
         )}
       </section>
+      {/* Modal para alterar data da reunião (Admin) */}
+      <EditDataReuniaoModal
+        isOpen={!!editingEdicao}
+        onClose={() => setEditingEdicao(null)}
+        edicao={editingEdicao}
+        onSuccess={(edicaoAtualizada) => {
+          setEdicoes((prev) =>
+            prev.map((e) => (e.id === edicaoAtualizada.id ? edicaoAtualizada : e))
+          );
+        }}
+      />
     </div>
   );
 };

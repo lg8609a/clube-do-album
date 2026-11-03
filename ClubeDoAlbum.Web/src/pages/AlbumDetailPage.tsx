@@ -209,6 +209,9 @@ export const AlbumDetailPage: React.FC = () => {
               </p>
             </div>
 
+            {/* Tracklist Compacto (Posicionado imediatamente abaixo do nome/ano da banda e antes da nota) */}
+            <AlbumTracklist faixas={album.faixas} />
+
             {/* Score & Tier Display */}
             <div className="flex flex-wrap items-center gap-4 py-1">
               <div className="flex items-center gap-2 bg-black/60 border border-white/10 px-4 py-2 rounded-2xl backdrop-blur-md">
@@ -278,9 +281,6 @@ export const AlbumDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Album Tracklist Section */}
-      <AlbumTracklist faixas={album.faixas} />
 
       {/* Review Submission Section */}
       <section className="glass-panel rounded-3xl p-6 sm:p-10 shadow-xl space-y-6 border border-white/[0.08]">

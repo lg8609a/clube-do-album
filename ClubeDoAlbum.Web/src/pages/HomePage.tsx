@@ -629,6 +629,15 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         </section>
       )}
+      {/* Modal para alterar data da reunião (Admin) */}
+      <EditDataReuniaoModal
+        isOpen={isEditDateModalOpen}
+        onClose={() => setIsEditDateModalOpen(false)}
+        edicao={edicaoAtiva}
+        onSuccess={(edicaoAtualizada) => {
+          setEdicaoAtiva(edicaoAtualizada);
+        }}
+      />
     </div>
   );
 };

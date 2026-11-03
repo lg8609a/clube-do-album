@@ -121,15 +121,15 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - Inclusão de `.Include(e => e.Albuns).ThenInclude(a => a.Avaliacoes)` em todos os métodos de consulta do `EdicoesController.cs`.
   - Atualização no frontend para considerar a nota calculada `(destaque.totalAvaliacoes > 0 || destaque.notaMedia > 0)` e sincronizar `albunsSemana` com as avaliações recém-registradas.
 
-### Fase 12: Países de Origem das Bandas (MusicBrainz) & Tracklist Completa das Faixas
+### Fase 12: Países de Origem das Bandas (MusicBrainz) & Tracklist Compacta Integrada
 - **Detecção do País de Origem da Banda:**
   - Como a API do Spotify não disponibiliza país de origem ou nacionalidade dos artistas/bandas, integramos o backend com a **MusicBrainz API** (`IMusicBrainzService`).
   - Durante o cadastro do álbum (ou sob demanda ao abrir a página de detalhes), a API consulta o artista no MusicBrainz e salva o código ISO 3166-1 alpha-2 (`PaisOrigem`, ex: `GB`, `US`, `BR`, `SE`, `DE`) na coluna `albums.PaisOrigem`.
-  - No frontend, o componente `CountryFlag.tsx` converte o código ISO no emoji da bandeira correspondente (🇬🇧, 🇧🇷, 🇺🇸) e exibe um tooltip nativo ao passar o mouse com o nome do país em português (*"Reino Unido"*, *"Suécia"*).
-- **Lista de Músicas (Tracklist Oficial do Álbum):**
+  - **Compatibilidade Cross-Platform de Bandeiras (`CountryFlag.tsx`):** Devido a uma limitação conhecida do sistema operacional Windows (a fonte *Segoe UI Emoji* deliberadamente não renderiza glifos de bandeiras nacionais e exibe códigos de texto como *"GB"*), o componente utiliza imagens em alta definição via `flagcdn.com` com bordas suaves e tooltip nativo em português (*"Reino Unido"*, *"Suécia"*, *"Brasil"*), garantindo fidelidade visual em qualquer sistema operacional.
+- **Lista de Músicas Integrada ao Card Principal (`AlbumTracklist.tsx`):**
   - Implementação do método `GetAlbumTracksAsync` no `SpotifyService.cs`, consultando `GET /v1/albums/{id}/tracks` com cache em memória de 24 horas (`IMemoryCache`).
   - **Decisão Arquitetural:** Para não inflar o banco de dados com centenas de faixas estáticas, as músicas são recuperadas **sob demanda** via Spotify ID apenas quando a página de avaliação do álbum é aberta.
-  - No frontend, o componente `AlbumTracklist.tsx` renderiza um painel retrátil elegante exibindo número da faixa (`01`, `02`), título, duração (`mm:ss`), tempo total do álbum e link direto para reprodução no Spotify.
+  - **Layout & UX:** As faixas são renderizadas diretamente na coluna de detalhes do álbum (imediatamente abaixo do nome da banda/ano e acima da nota), em fonte reduzida e discreta, sem botões de expandir/colapsar e com rolagem suave (`max-h-48 overflow-y-auto`), mantendo o bloco do álbum perfeitamente centralizado e balanceado em relação à capa.
 
 ### Fase 13: Ajuste Flexível da Data da Reunião pelo Administrador
 - **Contexto & Necessidade:** Em semanas temáticas ativas, imprevistos de agenda dos membros frequentemente exigem remarcar a reunião. Anteriormente, a data não podia ser editada sem encerrar a semana e recriá-la.
@@ -138,8 +138,8 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - Validação estrita de perfil: apenas administradores do clube (`IsAdmin`) têm permissão para disparar essa alteração.
   - A operação altera **exclusivamente a coluna `DataReuniao`** da edição, preservando integralmente o tema, o status e todos os álbuns e resenhas vinculados à rodada.
 - **Implementação no Frontend:**
-  - Criação do modal `EditDataReuniaoModal.tsx` com calendário interativo escuro e botão opcional de "Limpar Data".
-  - Na tela inicial (`HomePage.tsx`) e na listagem de edições (`EdicoesPage.tsx`), o botão da data passa a ser clicável exclusivamente para administradores (com ícone sutil de lápis/edição e cursor interativo), enquanto membros comuns visualizam a data em modo somente leitura.
+  - Criação e montagem do modal `EditDataReuniaoModal.tsx` na `HomePage.tsx` e `EdicoesPage.tsx` com calendário interativo escuro e botão opcional de "Limpar Data".
+  - O botão da data exibe o ícone de edição e abre o modal imediatamente ao clique do administrador, enquanto membros comuns visualizam a data em modo somente leitura.
 
 ---
 
