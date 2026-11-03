@@ -157,6 +157,17 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
     - Alternador de abas permitindo alternar entre **"Discos Indicados"** e **"Avaliações Feitas pelo Membro"**.
     - Links para o perfil de curador integrados no Ranking de Curadores (`CuratorsPage.tsx`), na Home (`HomePage.tsx`), nas Edições (`EdicoesPage.tsx`) e na tela de detalhes do álbum (`AlbumDetailPage.tsx`).
 
+### Fase 15: Remoção do Cadastro Retroativo & Exclusão Segura de Edições
+- **Contexto & Diagnóstico:** A funcionalidade de cadastro retroativo via planilha (out-of-band), concebida originalmente para permitir a importação de históricos legados, tornou-se desnecessária e de alto risco após o início oficial do clube com dados reais. Um usuário a utilizou por engano, gerando uma semana arquivada indevida (*"Edição #2 • Livre"*) com o álbum *"The Quantum Enigma (B-Sides)"*.
+- **Limpeza do Banco de Dados em Produção:** Execução de rotina de purga direta no Supabase via pooler em São Paulo, removendo em cascata as resenhas, o álbum acidental e a Edição #2, restaurando o clube ao estado íntegro com a Edição #1 ativa.
+- **Refatoração no Backend (.NET 10):**
+  - Remoção definitiva do endpoint `POST /api/albums/retroativo` e dos métodos auxiliares `ObterOuCriarUsuarioAsync` e `ObterOuCriarEdicaoAsync` em `AlbumsController.cs`.
+  - Remoção dos DTOs `CadastrarAlbumRetroativoDto` e `RetroAvaliacaoItemDto` em `AlbumDtos.cs`.
+  - Criação do endpoint seguro `DELETE /api/edicoes/{id:guid}` em `EdicoesController.cs` com validação de administrador (`IsAdmin`), permitindo à moderação remover edições indesejadas com exclusão em cascata de discos vinculados.
+- **Refatoração no Frontend (React):**
+  - Simplificação total de `AddAlbumModal.tsx`: eliminação da aba/botão de cadastro retroativo, campos de edição/tema manuais e lista de resenhas em lote. O modal agora é 100% focado no fluxo oficial de indicações da semana temática ativa, com busca no Spotify e validação de cotas (máx. 2 álbuns por membro).
+  - Atualização do serviço `api.ts`, removendo `createRetroativo` e adicionando `deleteEdicao`.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas
@@ -167,7 +178,7 @@ flowchart TD
     
     subgraph BackendAPI [ASP.NET Core 10 Web API]
         AuthController["AuthController\n(JWT & BCrypt)"]
-        AlbumsController["AlbumsController\n(CRUD & Retroativo)"]
+        AlbumsController["AlbumsController\n(CRUD & Cotas)"]
         EdicoesController["EdicoesController\n(Semanas & Cotas)"]
         ReviewsController["ReviewsController\n(Upsert & Médias)"]
         RankingController["RankingController\n(Leaderboards)"]
@@ -371,7 +382,6 @@ A API escuta por padrão em `http://localhost:5046/api`.
 - `GET /api/albums?status={status}&edicaoId={id}&userId={id}`: Lista álbuns com filtros opcionais. Quando filtrado por `status=EstaSemana`, respeita a edição ativa.
 - `GET /api/albums/{id}`: Retorna os detalhes completos de um álbum, notas de todos os membros e resenhas.
 - `POST /api/albums`: Indica um novo álbum para a semana ativa. Valida duplicatas, busca metadados no Spotify e valida a cota de 2 indicações do membro.
-- `POST /api/albums/retroativo`: Importa dados históricos em lote com notas de múltiplos membros direto para o acervo histórico.
 - `PATCH /api/albums/{id}/status`: Altera manualmente o status do álbum (`EstaSemana` $\leftrightarrow$ `JaOuvido`).
 - `DELETE /api/albums/{id}`: Remove um álbum do acervo (e suas avaliações em cascata).
 

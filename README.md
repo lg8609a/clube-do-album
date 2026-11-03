@@ -47,7 +47,7 @@ Backend (ClubeDoAlbum.Api)
 
 -> Perfil de Curador & Histórico de Indicações: Acesso ao perfil individual de qualquer membro com histórico completo de álbuns indicados ordenados por nota média, badges de colocação, estatísticas gerais (média do curador, melhor e pior indicação) e lista de resenhas dadas.
 
--> Histórico e Migração: Registro do histórico de edições concluídas e ferramenta de cadastro retroativo para importação de dados de reuniões anteriores.
+-> Histórico de Semanas: Registro cronológico de todas as edições e semanas concluídas, com temas, notas médias, álbuns ouvidos e histórico consolidado do clube.
 
 -> Gerenciamento de Perfil: Área do usuário para atualização de credenciais, alteração de foto de perfil (com upload direto do computador ou link web) e visualização do histórico pessoal de resenhas.
 

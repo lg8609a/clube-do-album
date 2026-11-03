@@ -88,30 +88,6 @@ export const albumsApi = {
     const res = await api.post<Album>('/albums', data);
     return res.data;
   },
-  createRetroativo: async (data: {
-    spotifyInput?: string;
-    spotifyId?: string;
-    titulo?: string;
-    artista?: string;
-    anoLancamento?: number;
-    capaUrl?: string;
-    spotifyUrl?: string;
-    indicadoPorNome?: string;
-    indicadoPorUserId?: string;
-    temaEdicao?: string;
-
-    numeroEdicao?: number;
-    dataReuniao?: string;
-    avaliacoes: Array<{
-      nomeUsuario?: string;
-      userId?: string;
-      nota: number;
-      comentario?: string;
-    }>;
-  }) => {
-    const res = await api.post<AlbumDetail>('/albums/retroativo', data);
-    return res.data;
-  },
   updateStatus: async (id: string, status: 'EstaSemana' | 'JaOuvido', edicaoId?: string) => {
     const res = await api.patch(`/albums/${id}/status`, { status, edicaoId });
     return res.data;
@@ -159,6 +135,10 @@ export const spotifyApi = {
     const res = await api.get<SpotifySearchResult[]>('/spotify/search', { params: { query, limit } });
     return res.data;
   },
+  searchAlbums: async (query: string, limit: number = 5) => {
+    const res = await api.get<SpotifySearchResult[]>('/spotify/search', { params: { query, limit } });
+    return res.data;
+  },
 };
 
 // Edicoes API
@@ -196,5 +176,8 @@ export const edicoesApi = {
   updateDataReuniao: async (id: string, dataReuniao: string | null) => {
     const res = await api.patch<Edicao>(`/edicoes/${id}/data-reuniao`, { dataReuniao });
     return res.data;
+  },
+  deleteEdicao: async (id: string) => {
+    await api.delete(`/edicoes/${id}`);
   },
 };

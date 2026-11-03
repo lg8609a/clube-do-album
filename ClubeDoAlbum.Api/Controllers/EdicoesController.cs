@@ -298,6 +298,48 @@ public class EdicoesController : ControllerBase
         return Ok(MapToEdicaoResponseDto(edicao));
     }
 
+    /// <summary>
+    /// Exclui uma edição pelo ID. Apenas administradores do clube podem excluir uma edição.
+    /// Se houver álbuns vinculados que pertencem unicamente a esta edição, eles e suas avaliações são removidos em cascata.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteEdicao(Guid id)
+    {
+        var claimUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(claimUserId, out var userId))
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null || !user.IsAdmin)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = "Apenas administradores podem excluir uma edição." });
+            }
+        }
+        else if (!User.IsInRole("Admin"))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = "Apenas administradores podem excluir uma edição." });
+        }
+
+        var edicao = await _context.Edicoes
+            .Include(e => e.Albuns)
+                .ThenInclude(a => a.Avaliacoes)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (edicao == null)
+        {
+            return NotFound(new { message = "Edição não encontrada." });
+        }
+
+        if (edicao.Albuns.Count > 0)
+        {
+            _context.Albums.RemoveRange(edicao.Albuns);
+        }
+
+        _context.Edicoes.Remove(edicao);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     private static EdicaoResponseDto MapToEdicaoResponseDto(Edicao e)
     {
         var albuns = e.Albuns.Select(a => new AlbumResponseDto
