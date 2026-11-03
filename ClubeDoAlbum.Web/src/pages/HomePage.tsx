@@ -8,6 +8,7 @@ import { TierBadge } from '../components/TierBadge';
 import { SoundwaveVisualizer } from '../components/SoundwaveVisualizer';
 import { UserAvatar } from '../components/UserAvatar';
 import { CountryFlag } from '../components/CountryFlag';
+import { EditDataReuniaoModal } from '../components/EditDataReuniaoModal';
 import {
   Disc3,
   Flame,
@@ -22,6 +23,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Radio,
+  Pencil,
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -41,6 +43,17 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [recentes, setRecentes] = useState<Album[]>([]);
   const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isEditDateModalOpen, setIsEditDateModalOpen] = useState(false);
+
+  const formatarData = (dataStr?: string | null) => {
+    if (!dataStr) return '';
+    const clean = dataStr.split('T')[0];
+    const parts = clean.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return new Date(dataStr).toLocaleDateString('pt-BR');
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -131,11 +144,34 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             {/* Quick Actions */}
             <div className="flex flex-wrap items-center gap-3 shrink-0">
-              {edicaoAtiva?.dataReuniao && (
-                <div className="px-4 py-2.5 glass-button-secondary rounded-xl text-xs text-zinc-300 font-mono flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-rose-400" />
-                  <span>Reunião: {new Date(edicaoAtiva.dataReuniao).toLocaleDateString('pt-BR')}</span>
-                </div>
+              {edicaoAtiva?.dataReuniao ? (
+                user?.isAdmin ? (
+                  <button
+                    onClick={() => setIsEditDateModalOpen(true)}
+                    className="px-4 py-2.5 glass-button-secondary rounded-xl text-xs text-zinc-300 hover:text-white font-mono flex items-center gap-2 border border-white/[0.08] hover:border-rose-500/40 transition cursor-pointer group"
+                    title="Clique para alterar a data da reunião"
+                  >
+                    <Calendar className="w-4 h-4 text-rose-400 group-hover:scale-110 transition-transform" />
+                    <span>Reunião: {formatarData(edicaoAtiva.dataReuniao)}</span>
+                    <Pencil className="w-3 h-3 text-zinc-500 group-hover:text-rose-400 transition-colors ml-1" />
+                  </button>
+                ) : (
+                  <div className="px-4 py-2.5 glass-button-secondary rounded-xl text-xs text-zinc-300 font-mono flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-rose-400" />
+                    <span>Reunião: {formatarData(edicaoAtiva.dataReuniao)}</span>
+                  </div>
+                )
+              ) : (
+                user?.isAdmin && edicaoAtiva && (
+                  <button
+                    onClick={() => setIsEditDateModalOpen(true)}
+                    className="px-4 py-2.5 glass-button-secondary rounded-xl text-xs text-zinc-400 hover:text-zinc-200 font-mono flex items-center gap-2 border border-dashed border-white/20 hover:border-rose-500/40 transition cursor-pointer"
+                    title="Agendar data para a reunião desta semana"
+                  >
+                    <Calendar className="w-4 h-4 text-rose-400" />
+                    <span>+ Agendar Reunião</span>
+                  </button>
+                )
               )}
 
               <button

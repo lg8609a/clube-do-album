@@ -17,6 +17,11 @@ public class UpdateEdicaoDto
     public string? Status { get; set; } // Planejada, EmAndamento, Finalizada
 }
 
+public class AtualizarDataReuniaoDto
+{
+    public DateOnly? DataReuniao { get; set; }
+}
+
 public class EdicaoResponseDto
 {
     public Guid Id { get; set; }

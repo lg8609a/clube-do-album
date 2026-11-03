@@ -4,6 +4,8 @@ import { edicoesApi } from '../services/api';
 import { Edicao } from '../types';
 import { TierBadge } from '../components/TierBadge';
 import { UserAvatar } from '../components/UserAvatar';
+import { EditDataReuniaoModal } from '../components/EditDataReuniaoModal';
+import { useAuth } from '../context/AuthContext';
 import {
   Calendar,
   Sparkles,
@@ -14,6 +16,7 @@ import {
   Star,
   Users,
   Radio,
+  Pencil,
 } from 'lucide-react';
 
 interface EdicoesPageProps {
@@ -23,7 +26,19 @@ interface EdicoesPageProps {
 export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) => {
   const [edicoes, setEdicoes] = useState<Edicao[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const [closingId, setClosingId] = useState<string | null>(null);
+  const [editingEdicao, setEditingEdicao] = useState<Edicao | null>(null);
+
+  const formatarData = (dataStr?: string | null) => {
+    if (!dataStr) return '';
+    const clean = dataStr.split('T')[0];
+    const parts = clean.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return new Date(dataStr).toLocaleDateString('pt-BR');
+  };
 
   const fetchEdicoes = async () => {
     try {
@@ -120,11 +135,34 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
             </div>
 
             <div className="flex items-center gap-3">
-              {edicaoAtiva.dataReuniao && (
-                <div className="px-3 py-1.5 glass-button-secondary rounded-xl text-xs text-zinc-300 flex items-center gap-1.5 font-mono">
-                  <Calendar className="w-3.5 h-3.5 text-rose-400" />
-                  <span>Reunião: {new Date(edicaoAtiva.dataReuniao).toLocaleDateString('pt-BR')}</span>
-                </div>
+              {edicaoAtiva.dataReuniao ? (
+                user?.isAdmin ? (
+                  <button
+                    onClick={() => setEditingEdicao(edicaoAtiva)}
+                    className="px-3 py-1.5 glass-button-secondary rounded-xl text-xs text-zinc-300 hover:text-white flex items-center gap-1.5 font-mono border border-white/[0.08] hover:border-rose-500/40 transition cursor-pointer group"
+                    title="Clique para alterar a data da reunião"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
+                    <span>Reunião: {formatarData(edicaoAtiva.dataReuniao)}</span>
+                    <Pencil className="w-3 h-3 text-zinc-500 group-hover:text-rose-400 transition-colors ml-0.5" />
+                  </button>
+                ) : (
+                  <div className="px-3 py-1.5 glass-button-secondary rounded-xl text-xs text-zinc-300 flex items-center gap-1.5 font-mono">
+                    <Calendar className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Reunião: {formatarData(edicaoAtiva.dataReuniao)}</span>
+                  </div>
+                )
+              ) : (
+                user?.isAdmin && (
+                  <button
+                    onClick={() => setEditingEdicao(edicaoAtiva)}
+                    className="px-3 py-1.5 glass-button-secondary rounded-xl text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5 font-mono border border-dashed border-white/20 hover:border-rose-500/40 transition cursor-pointer"
+                    title="Definir data para a reunião desta semana"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-rose-400" />
+                    <span>+ Agendar</span>
+                  </button>
+                )
               )}
 
               <button

@@ -189,4 +189,8 @@ export const edicoesApi = {
     const res = await api.post<Edicao>(`/edicoes/${id}/ativar`);
     return res.data;
   },
+  updateDataReuniao: async (id: string, dataReuniao: string | null) => {
+    const res = await api.patch<Edicao>(`/edicoes/${id}/data-reuniao`, { dataReuniao });
+    return res.data;
+  },
 };

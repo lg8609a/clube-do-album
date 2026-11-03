@@ -259,6 +259,45 @@ public class EdicoesController : ControllerBase
         return Ok(MapToEdicaoResponseDto(edicao));
     }
 
+    /// <summary>
+    /// Atualiza exclusivamente a data da reunião de uma edição, sem alterar tema, status ou álbuns vinculados.
+    /// Apenas administradores do clube podem alterar a data da reunião.
+    /// </summary>
+    [HttpPatch("{id:guid}/data-reuniao")]
+    public async Task<ActionResult<EdicaoResponseDto>> AtualizarDataReuniao(Guid id, [FromBody] AtualizarDataReuniaoDto request)
+    {
+        var claimUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(claimUserId, out var userId))
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null || !user.IsAdmin)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = "Apenas administradores podem alterar a data da reunião." });
+            }
+        }
+        else if (!User.IsInRole("Admin"))
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = "Apenas administradores podem alterar a data da reunião." });
+        }
+
+        var edicao = await _context.Edicoes
+            .Include(e => e.Albuns)
+                .ThenInclude(a => a.IndicadoPorUser)
+            .Include(e => e.Albuns)
+                .ThenInclude(a => a.Avaliacoes)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (edicao == null)
+        {
+            return NotFound(new { message = "Edição não encontrada." });
+        }
+
+        edicao.DataReuniao = request.DataReuniao;
+        await _context.SaveChangesAsync();
+
+        return Ok(MapToEdicaoResponseDto(edicao));
+    }
+
     private static EdicaoResponseDto MapToEdicaoResponseDto(Edicao e)
     {
         var albuns = e.Albuns.Select(a => new AlbumResponseDto

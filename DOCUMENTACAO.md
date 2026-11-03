@@ -131,6 +131,16 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - **Decisão Arquitetural:** Para não inflar o banco de dados com centenas de faixas estáticas, as músicas são recuperadas **sob demanda** via Spotify ID apenas quando a página de avaliação do álbum é aberta.
   - No frontend, o componente `AlbumTracklist.tsx` renderiza um painel retrátil elegante exibindo número da faixa (`01`, `02`), título, duração (`mm:ss`), tempo total do álbum e link direto para reprodução no Spotify.
 
+### Fase 13: Ajuste Flexível da Data da Reunião pelo Administrador
+- **Contexto & Necessidade:** Em semanas temáticas ativas, imprevistos de agenda dos membros frequentemente exigem remarcar a reunião. Anteriormente, a data não podia ser editada sem encerrar a semana e recriá-la.
+- **Implementação no Backend:**
+  - Criação do endpoint seguro `PATCH /api/edicoes/{id}/data-reuniao` com payload `AtualizarDataReuniaoDto { dataReuniao }`.
+  - Validação estrita de perfil: apenas administradores do clube (`IsAdmin`) têm permissão para disparar essa alteração.
+  - A operação altera **exclusivamente a coluna `DataReuniao`** da edição, preservando integralmente o tema, o status e todos os álbuns e resenhas vinculados à rodada.
+- **Implementação no Frontend:**
+  - Criação do modal `EditDataReuniaoModal.tsx` com calendário interativo escuro e botão opcional de "Limpar Data".
+  - Na tela inicial (`HomePage.tsx`) e na listagem de edições (`EdicoesPage.tsx`), o botão da data passa a ser clicável exclusivamente para administradores (com ícone sutil de lápis/edição e cursor interativo), enquanto membros comuns visualizam a data em modo somente leitura.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas
@@ -285,6 +295,9 @@ ClubeDoAlbum.Web/
 │   │   ├── AddAlbumModal.tsx           # Modal duplo: Indicação para a semana (com cota) ou Cadastro Retroativo
 │   │   ├── AlbumCard.tsx               # Card estilo Letterboxd com capa, selo de nota e efeito hover
 │   │   ├── CreateEdicaoModal.tsx       # Modal para cadastro de novas semanas temáticas e regras
+│   │   ├── EditDataReuniaoModal.tsx    # Modal para alteração exclusiva da data da reunião pelo admin
+│   │   ├── CountryFlag.tsx             # Renderizador de bandeiras e tooltips de nacionalidade da banda
+│   │   ├── AlbumTracklist.tsx          # Painel retrátil com a lista oficial de faixas do disco
 │   │   ├── Navbar.tsx                  # Barra de navegação responsiva em vidro fosco com atalhos e menu
 │   │   ├── ScoreInput.tsx              # Componente tátil com slider contínuo, steppers e nota /10
 │   │   ├── SoundwaveVisualizer.tsx     # Equalizador estético de ondas sonoras e frequência musical
@@ -336,6 +349,7 @@ A API escuta por padrão em `http://localhost:5046/api`.
 - `POST /api/edicoes`: Cria uma nova semana temática. Se `ativarImediatamente = true`, encerra a semana anterior e passa seus discos para `JaOuvido`.
 - `POST /api/edicoes/{id}/encerrar`: Finaliza a rodada da semana e arquiva seus discos como ouvidos.
 - `POST /api/edicoes/{id}/ativar`: Ativa uma edição existente como a rodada da semana.
+- `PATCH /api/edicoes/{id}/data-reuniao` *(Requer Admin)*: Atualiza exclusivamente a data da reunião de uma edição sem alterar tema, status ou álbuns vinculados.
 
 ### 6.3. Álbuns (`/api/albums`)
 - `GET /api/albums?status={status}&edicaoId={id}&userId={id}`: Lista álbuns com filtros opcionais. Quando filtrado por `status=EstaSemana`, respeita a edição ativa.
