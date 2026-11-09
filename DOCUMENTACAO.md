@@ -187,6 +187,21 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - **Novo Padrão Visual em `UserAvatar.tsx`:** Adição do modificador de tamanho `size="2xl"` (`w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64`), conferindo ao avatar as exatas proporções quadradas e imponentes de uma capa de disco de vinil (`rounded-2xl`), com borda chanfrada reflexiva e sombra profunda (`shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)]`).
   - **Alinhamento Responsivo em `CuratorProfilePage.tsx`:** Reorganização do cabeçalho da página para layout flexível e balanceado (`flex-col sm:flex-row items-center sm:items-start`), mantendo a foto em evidência ao lado do nome do curador, badges de posição no ranking e média geral das indicações.
 
+### Fase 18: Média Ponderada para Indicações Próprias (Peso 0.5 para o Curador)
+- **Contexto & Diagnóstico:** Após a primeira reunião oficial presencial do clube, os membros acordaram que era injusto e enviesado que a nota atribuída pelo próprio curador ao disco que ele mesmo escolheu tivesse o mesmo peso das notas dos demais amigos (por exemplo, um curador atribuir nota 10 para inflar o resultado de sua própria indicação).
+- **Regra de Negócio (Média Ponderada):**
+  - **Nota do Curador:** Recebe **peso 0.5** (metade do peso) quando avalia o álbum que ele mesmo indicou (`av.UserId == album.IndicadoPorUserId`).
+  - **Notas dos Demais Membros:** Recebem **peso normal 1.0**.
+  - **Fórmula:** $\text{Média} = \frac{\sum (N_i \times P_i)}{\sum P_i}$ arredondada para 1 casa decimal.
+- **Implementação no Backend (.NET 10):**
+  - Criação da classe estática `CalculoNotaHelper.cs` em `Common/` com o método `CalcularMediaPonderada`.
+  - Atualização do endpoint de registro de notas (`ReviewsController.cs`) para acionar o recálculo ponderado a cada nota nova ou editada.
+  - Inclusão de rotina de verificação e sincronização automática em `Program.cs` na inicialização do container.
+  - **Recálculo Retroativo em Produção:** Execução de rotina via Npgsql contra a base de dados do Supabase, recalculando retroativamente a média de todos os álbuns da 1ª rodada (6 álbuns ajustados para os novos valores mais justos).
+- **Implementação no Frontend (React):**
+  - **Aviso na Área de Avaliação (`AlbumDetailPage.tsx`):** Quando o membro logado é o curador daquele álbum, surge um aviso informativo com a balança da justiça (`⚖️`) explicando a regra de peso 0.5.
+  - **Badge na Lista de Resenhas dos Amigos:** O voto do curador agora exibe a etiqueta destacada `Curador • Peso 0.5`, dando total transparência para o grupo.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas
@@ -254,7 +269,15 @@ Toda nota deve ser um valor decimal entre **0.0 e 10.0** com precisão de uma ca
 | **2.0 a 3.9** | **Ruim** | Laranja queimado | Fraco, produção questionável ou canções descartáveis |
 | **0.0 a 1.9** | **Absolute Porcaria** | Carmesim escuro | Desastre sonoro, bomba total |
 
-### 4.2. Status do Álbum e da Edição
+### 4.2. Média Ponderada da Rodada (Regra de Imparcialidade do Curador)
+Para assegurar a justiça no cálculo das notas e eliminar o viés de autoindicação:
+- **Nota do Curador para o Próprio Álbum:** Possui **peso 0.5** (metade do peso).
+- **Notas dos Demais Membros:** Possuem **peso normal 1.0**.
+- **Fórmula:**
+  $\text{Média Final} = \frac{(N_{\text{curador}} \times 0.5) + \sum (N_{\text{amigo}} \times 1.0)}{0.5 + \text{Total de Amigos}}$
+- Se o curador não tiver avaliado seu próprio álbum ou a indicação for coletiva, todas as notas concorrem com peso 1.0.
+
+### 4.3. Status do Álbum e da Edição
 - **Status do Álbum:**
   - `EstaSemana`: O disco está na rodada ativa e os membros devem ouvi-lo e avaliá-lo.
   - `JaOuvido`: O disco já passou pelo debate do clube e agora reside permanentemente no catálogo histórico e nos rankings.

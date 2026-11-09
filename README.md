@@ -43,7 +43,7 @@ Backend (ClubeDoAlbum.Api)
 
 -> Meu Checklist da Rodada & Avaliação Individual: Painel personalizado para cada membro logado com barra de progresso, filtro rápido ("Faltam Ouvir" vs "Avaliados"), badges com a nota individual já atribuída e atenuação visual elegante de discos concluídos.
 
--> Sistema de Avaliações: Registro de notas (0.0 a 10.0) e resenhas textuais. Os álbuns recebem classificações em categorias pré-definidas com base na média final obtida (Masterpiece, É o Aço, Bom, Meia Boca, Ruim, Absolute Porcaria).
+-> Sistema de Avaliações & Média Ponderada: Registro de notas (0.0 a 10.0) e resenhas textuais. Para evitar viés de curadoria, a nota do próprio membro para o álbum que ele mesmo indicou tem peso 0.5 (metade) no cálculo da média final, enquanto as notas dos demais amigos têm peso normal 1.0. Os álbuns recebem classificações em categorias pré-definidas com base na média final obtida (Masterpiece, É o Aço, Bom, Meia Boca, Ruim, Absolute Porcaria).
 
 -> Rankings e Estatísticas: Tabelas de classificação gerais para os álbuns avaliados e um ranking de curadores baseado na média das notas de suas respectivas indicações.
 

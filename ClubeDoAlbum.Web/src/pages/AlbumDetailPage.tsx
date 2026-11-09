@@ -313,6 +313,15 @@ export const AlbumDetailPage: React.FC = () => {
 
         {user ? (
           <form onSubmit={handleReviewSubmit} className="space-y-6">
+            {album.indicadoPor && user && user.id === album.indicadoPor.id && (
+              <div className="p-3.5 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-200 text-xs font-mono flex items-center gap-2.5 shadow-sm">
+                <span className="text-base select-none">⚖️</span>
+                <span className="leading-relaxed">
+                  <strong>Aviso de Curadoria:</strong> Como este disco foi indicado por você, sua nota terá <strong>peso 0.5 (metade)</strong> no cálculo da média final para garantir a imparcialidade do clube.
+                </span>
+              </div>
+            )}
+
             {reviewSuccess && (
               <div className="p-3.5 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-mono font-bold flex items-center gap-2">
                 <Check className="w-4 h-4" /> Sua avaliação foi salva com sucesso!
@@ -391,7 +400,19 @@ export const AlbumDetailPage: React.FC = () => {
                         className="!rounded-full border border-white/10"
                       />
                       <div>
-                        <p className="font-bold text-xs text-white leading-tight">{rev.usuario.nome}</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-bold text-xs text-white leading-tight">{rev.usuario.nome}</p>
+                          {album.indicadoPor && rev.usuario.id === album.indicadoPor.id && (
+                            <span
+                              className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-rose-950/70 border border-rose-500/40 text-rose-300 font-bold flex items-center gap-1 shrink-0"
+                              title="Como este álbum foi indicado por este curador, sua nota possui peso 0.5 (metade) no cálculo da média final."
+                            >
+                              <span>Curador</span>
+                              <span className="text-zinc-500">•</span>
+                              <span className="text-amber-400">Peso 0.5</span>
+                            </span>
+                          )}
+                        </div>
                         <p className="text-[10px] text-zinc-500 font-mono">
                           {new Date(rev.createdAt).toLocaleDateString('pt-BR')}
                         </p>

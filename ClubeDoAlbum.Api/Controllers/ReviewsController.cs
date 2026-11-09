@@ -86,13 +86,18 @@ public class ReviewsController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        // Recalcula e sincroniza a média do álbum
-        var notas = await _context.Avaliacoes
+        // Recalcula e sincroniza a média ponderada do álbum
+        // Regra de Negócio: Notas do curador para o álbum que ele mesmo indicou têm peso 0.5 (metade).
+        // Notas dos demais membros têm peso normal 1.0.
+        var avaliacoesAlbum = await _context.Avaliacoes
             .Where(av => av.AlbumId == request.AlbumId)
-            .Select(av => av.Nota)
+            .Select(av => new { av.UserId, av.Nota })
             .ToListAsync();
 
-        album.NotaMedia = notas.Count > 0 ? Math.Round(notas.Average(), 1) : 0m;
+        album.NotaMedia = CalculoNotaHelper.CalcularMediaPonderada(
+            avaliacoesAlbum.Select(av => (av.UserId, av.Nota)),
+            album.IndicadoPorUserId
+        );
         await _context.SaveChangesAsync();
 
         return Ok(new ReviewResponseDto

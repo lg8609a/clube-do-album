@@ -79,6 +79,41 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Sincroniza e garante que todas as médias ponderadas dos álbuns estejam calculadas de acordo com a regra de peso 0.5 para o curador
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var albuns = await db.Albums
+            .Include(a => a.Avaliacoes)
+            .ToListAsync();
+
+        bool houveAlteracao = false;
+        foreach (var alb in albuns)
+        {
+            var mediaPonderada = ClubeDoAlbum.Api.Common.CalculoNotaHelper.CalcularMediaPonderada(
+                alb.Avaliacoes.Select(av => (av.UserId, av.Nota)),
+                alb.IndicadoPorUserId
+            );
+
+            if (alb.NotaMedia != mediaPonderada)
+            {
+                alb.NotaMedia = mediaPonderada;
+                houveAlteracao = true;
+            }
+        }
+
+        if (houveAlteracao)
+        {
+            await db.SaveChangesAsync();
+        }
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "Aviso: Não foi possível verificar médias no startup.");
+    }
+}
 
 app.Run();
 
