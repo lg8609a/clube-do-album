@@ -19,6 +19,9 @@ import {
   Radio,
   Calendar,
   Trash2,
+  Lock,
+  Shield,
+  Clock,
 } from 'lucide-react';
 
 export const AlbumDetailPage: React.FC = () => {
@@ -140,6 +143,10 @@ export const AlbumDetailPage: React.FC = () => {
   }
 
   const existingReview = user ? album.avaliacoes.find((av) => av.usuario.id === user.id) : null;
+  const isRoundFinished = album.status === 'JaOuvido';
+  const isReviewLocked = isRoundFinished && !!existingReview && !user?.isAdmin;
+  const isLateSubmission = isRoundFinished && !existingReview;
+  const isAdminBypass = isRoundFinished && !!existingReview && !!user?.isAdmin;
 
   return (
     <div className="space-y-12 pb-20 max-w-5xl mx-auto">
@@ -295,72 +302,198 @@ export const AlbumDetailPage: React.FC = () => {
       <section className="glass-panel rounded-3xl p-6 sm:p-10 shadow-xl space-y-6 border border-white/[0.08]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
           <div>
-            <h2 className="text-lg font-display font-bold uppercase tracking-wider text-white">
-              {existingReview ? 'Sua Avaliação (Já Registrada)' : 'Avaliar este Álbum'}
+            <h2 className="text-lg font-display font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              {isReviewLocked ? (
+                <>
+                  <Lock className="w-4 h-4 text-amber-400" />
+                  Sua Avaliação (Oficial e Selada)
+                </>
+              ) : isLateSubmission ? (
+                <>
+                  <Clock className="w-4 h-4 text-blue-400" />
+                  Avaliar Álbum Retroativamente
+                </>
+              ) : isAdminBypass ? (
+                <>
+                  <Shield className="w-4 h-4 text-purple-400" />
+                  Sua Avaliação (Modo Administrador)
+                </>
+              ) : existingReview ? (
+                'Sua Avaliação (Já Registrada)'
+              ) : (
+                'Avaliar este Álbum'
+              )}
             </h2>
             <p className="text-xs text-zinc-400 mt-0.5">
-              {existingReview
-                ? 'Você pode atualizar sua nota e resenha sempre que quiser.'
+              {isReviewLocked
+                ? 'Esta semana temática já foi encerrada e sua avaliação está selada permanentemente no histórico oficial.'
+                : isLateSubmission
+                ? 'Aproveite sua chance única para pontuar este disco após o término da semana.'
+                : isAdminBypass
+                ? 'Semana encerrada. Utilize este formulário para efetuar correções pontuais de administrador.'
+                : existingReview
+                ? 'Você pode atualizar sua nota e resenha sempre que quiser enquanto a semana estiver aberta.'
                 : 'Dê sua nota de 0 a 10 e deixe suas impressões sinceras sobre o disco.'}
             </p>
           </div>
           {existingReview && (
-            <span className="text-xs font-mono font-bold text-amber-300 bg-amber-950/40 border border-amber-500/30 px-3 py-1.5 rounded-xl self-start sm:self-auto">
+            <span className="text-xs font-mono font-bold text-amber-300 bg-amber-950/40 border border-amber-500/30 px-3 py-1.5 rounded-xl self-start sm:self-auto flex items-center gap-1.5">
+              {isReviewLocked && <Lock className="w-3 h-3 text-amber-400" />}
               Sua nota: {existingReview.nota.toFixed(1)}
             </span>
           )}
         </div>
 
         {user ? (
-          <form onSubmit={handleReviewSubmit} className="space-y-6">
-            {album.indicadoPor && user && user.id === album.indicadoPor.id && (
-              <div className="p-3.5 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-200 text-xs font-mono flex items-center gap-2.5 shadow-sm">
-                <span className="text-base select-none">⚖️</span>
-                <span className="leading-relaxed">
-                  <strong>Aviso de Curadoria:</strong> Como este disco foi indicado por você, sua nota terá <strong>peso 0.5 (metade)</strong> no cálculo da média final para garantir a imparcialidade do clube.
-                </span>
+          isReviewLocked ? (
+            <div className="space-y-6">
+              {/* Sealed Lock Banner */}
+              <div className="p-4 bg-amber-950/30 border border-amber-500/30 rounded-2xl flex items-start gap-3.5 text-xs text-amber-200">
+                <div className="p-2 bg-amber-500/20 rounded-xl text-amber-400 shrink-0">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold uppercase tracking-wider text-amber-300">
+                      Avaliação Selada no Histórico
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold">
+                      Semana Encerrada
+                    </span>
+                  </div>
+                  <p className="text-zinc-300 leading-relaxed font-sans">
+                    Esta semana temática já foi finalizada. Para garantir a transparência do ranking e evitar alterações táticas após o resultado, as notas e resenhas registradas foram seladas no histórico oficial do clube e não podem mais ser alteradas.
+                  </p>
+                </div>
               </div>
-            )}
 
-            {reviewSuccess && (
-              <div className="p-3.5 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-mono font-bold flex items-center gap-2">
-                <Check className="w-4 h-4" /> Sua avaliação foi salva com sucesso!
-              </div>
-            )}
+              {/* Display Registered Review */}
+              <div className="p-6 bg-white/[0.02] border border-white/[0.08] rounded-2xl space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar
+                      name={user.nome}
+                      avatarUrl={user.avatarUrl}
+                      size="md"
+                    />
+                    <div>
+                      <div className="font-display font-bold text-white text-base">
+                        {user.nome}
+                      </div>
+                      <div className="text-[10px] font-mono text-zinc-400">
+                        Avaliado em {new Date(existingReview.createdAt).toLocaleDateString('pt-BR')}
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-              <div className="md:col-span-5">
-                <ScoreInput value={userScore} onChange={setUserScore} />
-              </div>
+                  <div className="flex items-center gap-2">
+                    {album.indicadoPor && album.indicadoPor.id === user.id && (
+                      <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-950/50 border border-amber-500/30 px-2.5 py-1 rounded-lg">
+                        Curador • Peso 0.5
+                      </span>
+                    )}
+                    <div className="flex items-center gap-1.5 bg-black/60 border border-amber-500/30 px-4 py-2 rounded-xl">
+                      <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                      <span className="font-mono font-black text-2xl text-white tabular-nums">
+                        {existingReview.nota.toFixed(1)}
+                      </span>
+                      <span className="text-xs text-zinc-500 font-mono">/10</span>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="md:col-span-7 space-y-2">
-                <label className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300 block">
-                  Sua Resenha / Comentário (Opcional)
-                </label>
-                <textarea
-                  rows={5}
-                  placeholder="O que achou dos riffs, da produção, das faixas de destaque? Solte o verbo..."
-                  value={userComment}
-                  onChange={(e) => setUserComment(e.target.value)}
-                  className="w-full bg-zinc-950/70 border border-white/[0.08] rounded-2xl p-4 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition resize-none font-sans"
-                />
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold block mb-1.5">
+                    Sua Resenha / Comentário:
+                  </span>
+                  {existingReview.comentario ? (
+                    <p className="text-xs sm:text-sm text-zinc-200 bg-black/40 border border-white/[0.06] p-4 rounded-xl italic font-sans leading-relaxed">
+                      "{existingReview.comentario}"
+                    </p>
+                  ) : (
+                    <p className="text-xs text-zinc-500 italic bg-black/20 border border-white/[0.04] p-3 rounded-xl">
+                      Nenhum comentário adicional registrado.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
+          ) : (
+            <form onSubmit={handleReviewSubmit} className="space-y-6">
+              {/* Late Submission Notice */}
+              {isLateSubmission && (
+                <div className="p-3.5 bg-blue-950/40 border border-blue-500/40 rounded-xl text-blue-200 text-xs font-mono flex items-start gap-2.5 shadow-sm">
+                  <Clock className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">
+                    <strong>Avaliação Tardia (Chance Única):</strong> Esta semana temática já terminou, mas você ainda não havia registrado sua nota. Você tem direito a <strong>uma única avaliação retroativa</strong>. Assim que enviada, ela será <strong>selada permanentemente</strong> no ranking oficial e não poderá ser editada.
+                  </span>
+                </div>
+              )}
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={submittingReview}
-                className="glass-button-primary px-7 py-3 rounded-xl text-white font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shadow-lg disabled:opacity-50"
-              >
-                {submittingReview
-                  ? 'Salvando...'
-                  : existingReview
-                  ? 'Atualizar Avaliação'
-                  : 'Registrar Avaliação'}
-              </button>
-            </div>
-          </form>
+              {/* Admin Bypass Notice */}
+              {isAdminBypass && (
+                <div className="p-3.5 bg-purple-950/40 border border-purple-500/40 rounded-xl text-purple-200 text-xs font-mono flex items-start gap-2.5 shadow-sm">
+                  <Shield className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">
+                    <strong>Modo Administrador (Bypass Ativo):</strong> Esta semana está encerrada e selada para os demais membros, mas você possui permissão administrativa para efetuar correções em notas ou resenhas.
+                  </span>
+                </div>
+              )}
+
+              {/* Curator Notice */}
+              {album.indicadoPor && user && user.id === album.indicadoPor.id && (
+                <div className="p-3.5 bg-amber-950/40 border border-amber-500/30 rounded-xl text-amber-200 text-xs font-mono flex items-center gap-2.5 shadow-sm">
+                  <span className="text-base select-none">⚖️</span>
+                  <span className="leading-relaxed">
+                    <strong>Aviso de Curadoria:</strong> Como este disco foi indicado por você, sua nota terá <strong>peso 0.5 (metade)</strong> no cálculo da média final para garantir a imparcialidade do clube.
+                  </span>
+                </div>
+              )}
+
+              {reviewSuccess && (
+                <div className="p-3.5 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-mono font-bold flex items-center gap-2">
+                  <Check className="w-4 h-4" /> Sua avaliação foi salva com sucesso!
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                <div className="md:col-span-5">
+                  <ScoreInput value={userScore} onChange={setUserScore} />
+                </div>
+
+                <div className="md:col-span-7 space-y-2">
+                  <label className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-300 block">
+                    Sua Resenha / Comentário (Opcional)
+                  </label>
+                  <textarea
+                    rows={5}
+                    placeholder="O que achou dos riffs, da produção, das faixas de destaque? Solte o verbo..."
+                    value={userComment}
+                    onChange={(e) => setUserComment(e.target.value)}
+                    className="w-full bg-zinc-950/70 border border-white/[0.08] rounded-2xl p-4 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition resize-none font-sans"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="glass-button-primary px-7 py-3 rounded-xl text-white font-mono font-bold text-xs uppercase tracking-wider cursor-pointer shadow-lg disabled:opacity-50"
+                >
+                  {submittingReview
+                    ? 'Salvando...'
+                    : isLateSubmission
+                    ? 'Confirmar Minha Avaliação (Definitiva)'
+                    : isAdminBypass
+                    ? 'Salvar Correção (Admin)'
+                    : existingReview
+                    ? 'Atualizar Avaliação'
+                    : 'Registrar Avaliação'}
+                </button>
+              </div>
+            </form>
+          )
         ) : (
           <div className="p-8 bg-white/[0.02] border border-white/[0.06] rounded-2xl text-center space-y-4">
             <p className="text-xs text-zinc-400">Você precisa estar conectado para avaliar este álbum.</p>

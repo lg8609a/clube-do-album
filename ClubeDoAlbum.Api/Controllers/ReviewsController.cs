@@ -3,6 +3,7 @@ using ClubeDoAlbum.Api.Common;
 using ClubeDoAlbum.Api.Data;
 using ClubeDoAlbum.Api.DTOs;
 using ClubeDoAlbum.Api.Models.Entities;
+using ClubeDoAlbum.Api.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +32,10 @@ public class ReviewsController : ControllerBase
             return BadRequest(new { message = "A nota deve estar entre 0.0 e 10.0." });
         }
 
-        var album = await _context.Albums.FindAsync(request.AlbumId);
+        var album = await _context.Albums
+            .Include(a => a.Edicao)
+            .FirstOrDefaultAsync(a => a.Id == request.AlbumId);
+
         if (album == null)
         {
             return NotFound(new { message = "Álbum não encontrado." });
@@ -59,9 +63,39 @@ public class ReviewsController : ControllerBase
             return NotFound(new { message = "Usuário não encontrado." });
         }
 
+        // Determina se o usuário chamador possui privilégios de administrador (bypass)
+        bool isCallerAdmin = false;
+        if (Guid.TryParse(claimUserId, out var callerId))
+        {
+            var caller = await _context.Users.FindAsync(callerId);
+            if (caller?.IsAdmin == true)
+            {
+                isCallerAdmin = true;
+            }
+        }
+        else if (user.IsAdmin)
+        {
+            isCallerAdmin = true;
+        }
+
+        // Regra de Negócio - Lock de Avaliações em Semanas Encerradas:
+        // 1. Se a semana já foi encerrada (album.Status == JaOuvido ou Edicao.Status == Finalizada):
+        //    - Membros que JÁ AVALIARAM não podem mais alterar a nota ou comentário (403 Forbidden).
+        //    - Membros que NÃO AVALIARAM têm UMA CHANCE ÚNICA retroativa de registrar sua nota (review == null).
+        // 2. Administradores têm bypass para efetuar correções em notas seladas.
+        bool semanaEncerrada = album.Status == AlbumStatus.JaOuvido || (album.Edicao != null && album.Edicao.Status == EdicaoStatus.Finalizada);
+
         // Verifica se o usuário já avaliou este álbum anteriormente (Upsert)
         var review = await _context.Avaliacoes
             .FirstOrDefaultAsync(av => av.AlbumId == request.AlbumId && av.UserId == userId);
+
+        if (semanaEncerrada && review != null && !isCallerAdmin)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                message = "Esta semana temática já foi encerrada. As avaliações registradas estão seladas no histórico oficial do clube e não podem mais ser alteradas."
+            });
+        }
 
         if (review != null)
         {
@@ -160,6 +194,7 @@ public class ReviewsController : ControllerBase
         var reviews = await _context.Avaliacoes
             .Where(av => av.UserId == userId)
             .Include(av => av.Album)
+                .ThenInclude(a => a.Edicao)
             .OrderByDescending(av => av.CreatedAt)
             .Select(av => new UserReviewDetailDto
             {
@@ -172,6 +207,9 @@ public class ReviewsController : ControllerBase
                 AlbumSpotifyUrl = av.Album.SpotifyUrl,
                 AlbumNotaMedia = av.Album.NotaMedia,
                 AlbumClassificacao = ClassificacaoNotaHelper.ObterClassificacao(av.Album.NotaMedia),
+                AlbumStatus = (av.Album.Status == AlbumStatus.JaOuvido || (av.Album.Edicao != null && av.Album.Edicao.Status == EdicaoStatus.Finalizada))
+                    ? AlbumStatus.JaOuvido.ToString()
+                    : av.Album.Status.ToString(),
                 Nota = av.Nota,
                 Comentario = av.Comentario,
                 CreatedAt = av.CreatedAt,

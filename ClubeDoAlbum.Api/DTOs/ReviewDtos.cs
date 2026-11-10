@@ -34,6 +34,7 @@ public class UserReviewDetailDto
     public string? AlbumSpotifyUrl { get; set; }
     public decimal AlbumNotaMedia { get; set; }
     public string AlbumClassificacao { get; set; } = string.Empty;
+    public string AlbumStatus { get; set; } = string.Empty;
     public decimal Nota { get; set; }
     public string? Comentario { get; set; }
     public DateTime CreatedAt { get; set; }

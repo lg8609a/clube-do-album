@@ -5,7 +5,7 @@ import { reviewsApi } from '../services/api';
 import { UserReviewDetail } from '../types';
 import { ScoreInput } from '../components/ScoreInput';
 import { TierBadge } from '../components/TierBadge';
-import { Disc3, Edit3, Check, Star, ArrowRight, MessageSquare } from 'lucide-react';
+import { Disc3, Edit3, Check, Star, ArrowRight, MessageSquare, Lock, Shield } from 'lucide-react';
 
 export const MyReviewsPage: React.FC = () => {
   const { user } = useAuth();
@@ -102,7 +102,7 @@ export const MyReviewsPage: React.FC = () => {
           Minhas Avaliações & Notas
         </h1>
         <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-          Você já avaliou {items.length} {items.length === 1 ? 'disco' : 'discos'} no Clube do Álbum. Edite suas notas e resenhas a qualquer momento.
+          Você já avaliou {items.length} {items.length === 1 ? 'disco' : 'discos'} no Clube do Álbum. Edite suas avaliações durante a semana ativa. Discos de edições já encerradas ficam selados permanentemente no acervo oficial.
         </p>
       </div>
 
@@ -111,6 +111,9 @@ export const MyReviewsPage: React.FC = () => {
         <div className="space-y-4">
           {items.map((rev) => {
             const isEditing = editingAlbumId === rev.albumId;
+            const isRoundFinished = rev.albumStatus === 'JaOuvido';
+            const isReviewLocked = isRoundFinished && !user?.isAdmin;
+            const isAdminBypass = isRoundFinished && !!user?.isAdmin;
 
             return (
               <div
@@ -156,13 +159,32 @@ export const MyReviewsPage: React.FC = () => {
                       <span className="text-xs text-zinc-500 font-mono">/10</span>
                     </div>
 
-                    <button
-                      onClick={() => (isEditing ? setEditingAlbumId(null) : handleStartEdit(rev))}
-                      className="glass-button-secondary px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold flex items-center gap-1.5 transition cursor-pointer text-zinc-200"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      {isEditing ? 'Fechar' : 'Editar'}
-                    </button>
+                    {isReviewLocked ? (
+                      <div
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900/80 border border-zinc-700/50 text-zinc-400 font-mono text-xs select-none"
+                        title="Esta semana temática já foi encerrada. Avaliação selada permanentemente no histórico oficial."
+                      >
+                        <Lock className="w-3.5 h-3.5 text-amber-400/80" />
+                        <span>Selada</span>
+                      </div>
+                    ) : isAdminBypass ? (
+                      <button
+                        onClick={() => (isEditing ? setEditingAlbumId(null) : handleStartEdit(rev))}
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold flex items-center gap-1.5 transition cursor-pointer bg-purple-950/40 hover:bg-purple-900/60 border border-purple-500/30 text-purple-300"
+                        title="Semana encerrada, mas você possui permissão administrativa para efetuar correções."
+                      >
+                        <Shield className="w-3.5 h-3.5 text-purple-400" />
+                        {isEditing ? 'Fechar' : 'Editar (Admin)'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => (isEditing ? setEditingAlbumId(null) : handleStartEdit(rev))}
+                        className="glass-button-secondary px-3.5 py-1.5 rounded-xl text-xs font-mono font-semibold flex items-center gap-1.5 transition cursor-pointer text-zinc-200"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        {isEditing ? 'Fechar' : 'Editar'}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -176,6 +198,13 @@ export const MyReviewsPage: React.FC = () => {
                 {/* Inline Edit Form */}
                 {isEditing && (
                   <div className="pt-4 border-t border-white/[0.08] space-y-4 animate-in fade-in">
+                    {isAdminBypass && (
+                      <div className="p-3 bg-purple-950/40 border border-purple-500/30 rounded-xl text-purple-200 text-xs font-mono flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-purple-400 shrink-0" />
+                        <span>Modo Administrador: Semana encerrada. Use com cuidado para correções pontuais.</span>
+                      </div>
+                    )}
+
                     <ScoreInput value={editScore} onChange={setEditScore} />
 
                     <div className="space-y-1.5">
@@ -203,7 +232,7 @@ export const MyReviewsPage: React.FC = () => {
                         className="glass-button-primary px-5 py-2 disabled:opacity-50 text-white text-xs font-mono font-bold uppercase rounded-xl flex items-center gap-1.5 transition shadow"
                       >
                         <Check className="w-3.5 h-3.5" />
-                        {saving ? 'Salvando...' : 'Salvar Alterações'}
+                        {saving ? 'Salvando...' : isAdminBypass ? 'Salvar Correção (Admin)' : 'Salvar Alterações'}
                       </button>
                     </div>
                   </div>

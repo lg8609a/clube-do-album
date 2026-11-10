@@ -202,6 +202,30 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
   - **Aviso na Área de Avaliação (`AlbumDetailPage.tsx`):** Quando o membro logado é o curador daquele álbum, surge um aviso informativo com a balança da justiça (`⚖️`) explicando a regra de peso 0.5.
   - **Badge na Lista de Resenhas dos Amigos:** O voto do curador agora exibe a etiqueta destacada `Curador • Peso 0.5`, dando total transparência para o grupo.
 
+### Fase 19: Selamento de Avaliações em Semanas Encerradas, Avaliação Tardia Retroativa & Bypass Administrativo
+- **Contexto & Diagnóstico:** Durante o encerramento da rodada, dois comportamentos foram identificados:
+  1. *Manipulação tática de rankings:* Membros que já haviam dado nota podiam alterar seus votos após a reunião ao ver os resultados finais consolidados.
+  2. *Membros atrasados ou novos integrantes:* Participantes que não conseguiram votar a tempo (ou que entraram no clube após o encerramento da semana) ficavam impossibilitados de opinar e contribuir para o catálogo histórico.
+- **Regras de Negócio Implementadas:**
+  - **Selamento de Avaliações em Semanas Concluídas:** Uma vez encerrada a semana temática (`AlbumStatus.JaOuvido` ou `EdicaoStatus.Finalizada`), membros que já registraram suas avaliações durante a rodada ativa têm seus votos e resenhas **selados permanentemente** no histórico do clube (bloqueio `HTTP 403 Forbidden`).
+  - **Chance Única Retroativa (Late Submission):** Membros que não avaliaram o disco a tempo (ou novos participantes do clube) possuem **uma única oportunidade retroativa** para registrar sua nota e resenha. No exato instante em que a avaliação é gravada e a média recalculada, ela transiciona para o estado selado e não poderá mais ser editada.
+  - **Bypass de Administrador:** Membros administradores (`IsAdmin == true`) mantêm permissão especial de bypass tanto no backend quanto no frontend, podendo editar e corrigir avaliações seladas para sanar erros de digitação (ex: membro que digitou nota 1.0 por engano querendo dar 10.0).
+- **Implementação no Backend (.NET 10):**
+  - Em `ReviewsController.cs` (`CreateOrUpdateReview`):
+    - Verificação de semana encerrada: `bool semanaEncerrada = album.Status == AlbumStatus.JaOuvido || (album.Edicao != null && album.Edicao.Status == EdicaoStatus.Finalizada);`.
+    - Verificação de permissão administrativa: extração e validação de claims JWT `ClaimTypes.NameIdentifier` para checar `caller.IsAdmin`.
+    - Bloqueio com `StatusCode(403, ...)` se `semanaEncerrada && review != null && !isCallerAdmin`.
+    - Se `review == null`, permite a criação normal (chance única), aplicando o recálculo ponderado de notas imediatamente.
+  - Em `ReviewDtos.cs` e `ReviewsController.cs` (`GetReviewsByUser`): inclusão do campo `AlbumStatus` no DTO `UserReviewDetailDto` para permitir que o frontend identifique se o álbum pertence a uma rodada já finalizada.
+- **Implementação no Frontend (React):**
+  - **`AlbumDetailPage.tsx`:**
+    - Para avaliações seladas (`isReviewLocked`): Oculta o formulário de edição e exibe um painel de leitura seguro com ícone de cadeado (`Lock`), selo *"Avaliação Selada no Histórico"* e o comentário/nota imutáveis.
+    - Para avaliações tardias (`isLateSubmission`): Exibe banner azul com ícone de relógio (`Clock`) alertando que a submissão é definitiva e altera o botão para *"Confirmar Minha Avaliação (Definitiva)"*.
+    - Para administradores (`isAdminBypass`): Exibe badge roxa com escudo (`Shield`) indicando modo de correção administrativo e altera o botão para *"Salvar Correção (Admin)"*.
+  - **`MyReviewsPage.tsx`:**
+    - Avaliações de discos já ouvidos exibem a pílula desabilitada `<Lock /> Selada` no lugar do botão de edição para usuários comuns.
+    - Administradores visualizam o botão `Editar (Admin)` com ícone de escudo para correções emergenciais.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas
@@ -286,20 +310,25 @@ Para assegurar a justiça no cálculo das notas e eliminar o viés de autoindica
   - `EmAndamento`: Edição ativa corrente. Todos os álbuns adicionados na semana associam-se a ela.
   - `Finalizada`: Rodada encerrada; todos os discos que pertenciam a ela são arquivados como `JaOuvido`.
 
-### 4.3. Regra de Cotas de Indicação
+### 4.4. Regra de Cotas de Indicação
 - Cada membro ativo tem direito a indicar **no máximo 2 álbuns por semana temática ativa**.
 - O backend valida a quantidade de álbuns vinculados ao ID do membro para aquela edição ativa:
   $$\text{Total Indicados} = \text{Count}(\text{EdicaoId} = \text{Ativa} \land \text{UserId} = \text{Membro} \land \text{Status} = \text{EstaSemana})$$
 - Se o valor for $\ge 2$, a API bloqueia a requisição retornando `HTTP 400 Bad Request`.
 - O frontend exibe indicadores de progresso (`0/2`, `1/2`, `2/2` com selo verde de concluído).
 
-### 4.4. Recálculo Imediato de Médias (Upsert)
+### 4.5. Recálculo Imediato de Médias Ponderadas (Upsert)
 - Cada membro só pode avaliar uma única vez o mesmo álbum (garantido por restrição única no banco: `UNIQUE(AlbumId, UserId)`).
-- Se o membro enviar uma nova nota para um disco que já avaliou, o sistema atualiza a nota existente.
-- A cada avaliação criada ou editada, a média aritmética do álbum é recalculada instantaneamente:
-  $$\text{NotaMedia} = \text{Round}\left(\frac{\sum \text{Notas}}{N}, 1\right)$$
+- Durante a semana ativa, se o membro enviar uma nova nota para um disco que já avaliou, o sistema atualiza a nota existente.
+- A cada avaliação criada ou editada, a média ponderada do álbum é recalculada instantaneamente:
+  $$\text{NotaMedia} = \text{Round}\left(\frac{(N_{\text{curador}} \times 0.5) + \sum (N_{\text{amigo}} \times 1.0)}{0.5 + \text{Total de Amigos}}, 1\right)$$
 
-### 4.5. Leaderboards
+### 4.6. Selamento de Avaliações em Semanas Encerradas & Chance Única Retroativa
+- **Selamento Permanente:** Quando a edição da semana é encerrada (`EdicaoStatus.Finalizada` ou `AlbumStatus.JaOuvido`), os membros que já haviam registrado suas notas têm seus votos e comentários selados permanentemente no acervo do clube. Nenhuma edição posterior é permitida (`HTTP 403 Forbidden`), prevenindo distorções nos rankings.
+- **Chance Única Retroativa:** Usuários que não avaliaram o álbum enquanto a semana estava aberta (ou que ingressaram no clube após a data) podem registrar sua avaliação a qualquer momento no passado. O sistema concede exatamente uma submissão inicial; a partir do momento em que é gravada, a nota passa a ser selada como as demais.
+- **Bypass de Administrador:** Administradores do clube possuem privilégio de bypass nos endpoints e telas para efetuar correções pontuais em notas e resenhas seladas em caso de erro comprovado de preenchimento.
+
+### 4.7. Leaderboards
 - **O Grande Ranking:** Lista álbuns ordenados por `NotaMedia DESC`.
 - **Ranking de Curadores (Hall da Fama vs Troféu Podrinho):**
   - Calcula a média das notas de todos os álbuns indicados por cada membro:
@@ -315,6 +344,7 @@ Para assegurar a justiça no cálculo das notas e eliminar o viés de autoindica
 ```
 ClubeDoAlbum.Api/
 ├── Common/
+│   ├── CalculoNotaHelper.cs            # Cálculo de média ponderada (peso 0.5 para o curador)
 │   └── ClassificacaoNotaHelper.cs      # Mapeia notas numéricas (0.0 - 10.0) para os 6 tiers textuais
 ├── Controllers/
 │   ├── AlbumsController.cs             # CRUD de álbuns, busca, cadastro retroativo e validação de cotas

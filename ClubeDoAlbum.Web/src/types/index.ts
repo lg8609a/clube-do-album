@@ -131,6 +131,7 @@ export interface UserReviewDetail {
   albumSpotifyUrl?: string;
   albumNotaMedia: number;
   albumClassificacao: TierClassificacao;
+  albumStatus?: AlbumStatus;
   nota: number;
   comentario?: string;
   createdAt: string;
