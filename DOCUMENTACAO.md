@@ -226,6 +226,21 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
     - Avaliações de discos já ouvidos exibem a pílula desabilitada `<Lock /> Selada` no lugar do botão de edição para usuários comuns.
     - Administradores visualizam o botão `Editar (Admin)` com ícone de escudo para correções emergenciais.
 
+### Fase 20: Visualização Linear Expansível (Top 3 & Linhas Únicas) na Tela de Edições & Arquivo
+- **Contexto & Diagnóstico:** Na página de *"Edições & Arquivo"*, a exibição dos álbuns em formato de grid multidimensional (3 a 4 colunas) fragmentava a leitura visual da ordem das notas. Como os discos eram ordenados por nota da esquerda para a direita e depois quebravam para as linhas inferiores, o usuário não tinha uma percepção imediata e hierárquica do ranking da semana.
+- **Implementação no Frontend (React):**
+  - **Componente `AlbumRowItem` (`EdicoesPage.tsx`):**
+    - Cada álbum agora é apresentado em **linha única horizontal**, com alinhamento estrito de cima para baixo.
+    - **Posicionador de Ranking:** Badges com destaque especial para os três primeiros colocados (`#1` dourado metálico com glow, `#2` prata/zinco, `#3` bronze e `#4+` sutil).
+    - **Metadados Completos:** Capa quadrada com zoom suave no hover, título, artista, ano de lançamento e perfil do curador que indicou o disco.
+    - **Nota Média & Tier:** Caixa com nota numérica destacada (`★ 8.7`), badge de classificação de tier e botão de ação direta (*"Avaliar →"* para a semana ativa ou *"Ver →"* para semanas finalizadas).
+  - **Controle Expansível (Top 3 Inicial):**
+    - Por padrão, edições com mais de 3 álbuns exibem apenas as **3 maiores notas** da semana, mantendo a tela compacta, limpa e sem rolagem excessiva.
+    - Botão de expansão contextual com ícones de chevron:
+      - Recolhido: *"Ver todos os 10 álbuns da edição (+7 álbuns) ↓"*
+      - Expandido: *"Recolher para o Top 3 ↑"*
+    - Suporte unificado tanto para a **Edição Ativa** em andamento quanto para o **Arquivo de Semanas Anteriores**.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas
