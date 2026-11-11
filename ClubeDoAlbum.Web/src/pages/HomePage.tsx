@@ -212,7 +212,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 className="glass-button-primary px-5 py-2.5 rounded-xl text-white font-mono font-bold text-xs uppercase tracking-wider transition flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
-                Indicar Disco (Até 2)
+                Indicar Disco
               </button>
             </div>
           </div>
@@ -226,14 +226,13 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <span>Indicações da Galera ({albunsSemana.length} discos na rodada)</span>
                 </div>
                 <span className="text-[11px] font-mono text-zinc-500">
-                  Cota: 2 discos por membro
+                  Cota: 1 disco por membro
                 </span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 {membrosStatus.map((m) => {
-                  const completo = m.totalIndicados >= 2;
-                  const parcial = m.totalIndicados === 1;
+                  const completo = m.totalIndicados >= 1;
 
                   return (
                     <Link
@@ -243,8 +242,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                       className={`flex items-center gap-3 p-2.5 rounded-xl border backdrop-blur-md transition-all duration-200 hover:scale-[1.03] hover:border-rose-500/50 group cursor-pointer ${
                         completo
                           ? 'bg-emerald-950/20 border-emerald-500/30 text-zinc-200 shadow-[0_0_12px_rgba(16,185,129,0.1)]'
-                          : parcial
-                          ? 'bg-amber-950/20 border-amber-500/30 text-zinc-200 shadow-[0_0_12px_rgba(245,158,11,0.1)]'
                           : 'bg-white/[0.02] border-white/[0.06] text-zinc-500 hover:text-zinc-300'
                       }`}
                     >
@@ -259,24 +256,15 @@ export const HomePage: React.FC<HomePageProps> = ({
                             className={`font-mono font-bold text-[10px] ${
                               completo
                                 ? 'text-emerald-400'
-                                : parcial
-                                ? 'text-amber-400'
                                 : 'text-zinc-500'
                             }`}
                           >
-                            {m.totalIndicados}/2
+                            {m.totalIndicados}/1
                           </span>
                           {completo ? (
                             <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
                           ) : (
-                            <div className="flex gap-1">
-                              <span
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  parcial ? 'bg-amber-400' : 'bg-zinc-700'
-                                }`}
-                              />
-                              <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
-                            </div>
+                            <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
                           )}
                         </div>
                       </div>
@@ -640,7 +628,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               Nenhum disco em votação esta semana
             </h2>
             <p className="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto">
-              Cada membro do clube tem direito a indicar até 2 discos na rodada ativa. Seja o primeiro a indicar!
+              Cada membro do clube tem direito a indicar 1 disco na rodada ativa. Seja o primeiro a indicar!
             </p>
             <button
               onClick={onOpenAddModal}
@@ -666,7 +654,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </p>
             </div>
             <span className="text-xs font-mono text-zinc-500">
-              {albunsSemana.length} de {membrosStatus.length * 2} possíveis
+              {albunsSemana.length} de {membrosStatus.length} possíveis
             </span>
           </div>
 

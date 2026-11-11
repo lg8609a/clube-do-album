@@ -241,6 +241,16 @@ A construção do projeto seguiu uma abordagem evolutiva, dividida em fases estr
       - Expandido: *"Recolher para o Top 3 ↑"*
     - Suporte unificado tanto para a **Edição Ativa** em andamento quanto para o **Arquivo de Semanas Anteriores**.
 
+### Fase 21: Ajuste da Cota de Indicações (1 Álbum por Membro por Semana)
+- **Contexto & Decisão do Clube:** Com a expansão do clube e a chegada de novos membros, a cota de 2 álbuns por pessoa gerava um volume de audições muito elevado para a rotina semanal. O grupo decidiu limitar a cota para **1 álbum por membro** por semana temática ativa.
+- **Implementação no Backend (.NET 10):**
+  - **`AlbumsController.cs`:** Atualização da validação de regras de negócio para barrar indicações adicionais quando `countJaIndicados >= 1`, retornando mensagem explicativa `HTTP 400 Bad Request`.
+  - **`EdicoesController.cs` & `EdicaoDtos.cs`:** Atualização da propriedade `LimiteMaximo` de 2 para 1 em `MembroIndicacoesStatusDto`, ajustando dinamicamente o cálculo de `PodeIndicarMais`.
+- **Implementação no Frontend (React):**
+  - **`HomePage.tsx`:** Ajuste dos cards de cota pessoal para o formato `{m.totalIndicados}/1`, exibindo o ícone esmeralda de concluído logo na 1ª indicação, e atualização dos contadores de discos possíveis.
+  - **`AddAlbumModal.tsx` & `CreateEdicaoModal.tsx`:** Atualização de avisos, travas de formulário e textos descritivos para refletir a nova regra de 1 disco.
+  - **`EdicoesPage.tsx`:** Atualização da legenda informativa da semana para *"Regra: 1 por membro"*.
+
 ---
 
 ## 3. Decisões de Arquitetura & Justificativas Técnicas
@@ -326,11 +336,11 @@ Para assegurar a justiça no cálculo das notas e eliminar o viés de autoindica
   - `Finalizada`: Rodada encerrada; todos os discos que pertenciam a ela são arquivados como `JaOuvido`.
 
 ### 4.4. Regra de Cotas de Indicação
-- Cada membro ativo tem direito a indicar **no máximo 2 álbuns por semana temática ativa**.
+- Cada membro ativo tem direito a indicar **1 álbum por semana temática ativa**.
 - O backend valida a quantidade de álbuns vinculados ao ID do membro para aquela edição ativa:
   $$\text{Total Indicados} = \text{Count}(\text{EdicaoId} = \text{Ativa} \land \text{UserId} = \text{Membro} \land \text{Status} = \text{EstaSemana})$$
-- Se o valor for $\ge 2$, a API bloqueia a requisição retornando `HTTP 400 Bad Request`.
-- O frontend exibe indicadores de progresso (`0/2`, `1/2`, `2/2` com selo verde de concluído).
+- Se o valor for $\ge 1$, a API bloqueia a requisição retornando `HTTP 400 Bad Request`.
+- O frontend exibe indicadores de progresso (`0/1`, `1/1` com selo verde de concluído).
 
 ### 4.5. Recálculo Imediato de Médias Ponderadas (Upsert)
 - Cada membro só pode avaliar uma única vez o mesmo álbum (garantido por restrição única no banco: `UNIQUE(AlbumId, UserId)`).

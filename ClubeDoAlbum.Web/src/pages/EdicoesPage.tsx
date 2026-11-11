@@ -307,7 +307,7 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
                   </span>
                 )}
               </span>
-              <span>Regra: até 2 por membro</span>
+              <span>Regra: 1 por membro</span>
             </div>
 
             {edicaoAtiva.albuns.length > 0 ? (
@@ -347,7 +347,7 @@ export const EdicoesPage: React.FC<EdicoesPageProps> = ({ onOpenCreateModal }) =
               </div>
             ) : (
               <p className="text-xs text-zinc-500 italic py-4 font-mono">
-                Nenhum álbum foi indicado para esta semana ainda. Cada membro pode indicar até 2 discos!
+                Nenhum álbum foi indicado para esta semana ainda. Cada membro pode indicar 1 disco!
               </p>
             )}
           </div>

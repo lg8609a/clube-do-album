@@ -98,7 +98,7 @@ public class EdicoesController : ControllerBase
                 Nome = u.Nome,
                 AvatarUrl = u.AvatarUrl,
                 TotalIndicados = indicados.Count,
-                LimiteMaximo = 2,
+                LimiteMaximo = 1,
                 AlbunsIndicadosTitulos = indicados.Select(a => $"{a.Titulo} ({a.Artista})").ToList()
             };
         }).ToList();

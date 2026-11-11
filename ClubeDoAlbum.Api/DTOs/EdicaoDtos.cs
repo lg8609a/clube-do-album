@@ -42,7 +42,7 @@ public class MembroIndicacoesStatusDto
     public string Nome { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
     public int TotalIndicados { get; set; }
-    public int LimiteMaximo { get; set; } = 2;
+    public int LimiteMaximo { get; set; } = 1;
     public bool PodeIndicarMais => TotalIndicados < LimiteMaximo;
     public List<string> AlbunsIndicadosTitulos { get; set; } = new();
 }

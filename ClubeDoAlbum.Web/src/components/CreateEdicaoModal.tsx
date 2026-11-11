@@ -78,7 +78,7 @@ export const CreateEdicaoModal: React.FC<CreateEdicaoModalProps> = ({
             Definir Semana Temática
           </h2>
           <p className="text-xs text-zinc-400 leading-relaxed font-sans">
-            Crie a rodada de audição onde cada membro poderá indicar até 2 álbuns do tema escolhido.
+            Crie a rodada de audição onde cada membro poderá indicar 1 álbum do tema escolhido.
           </p>
         </div>
 
@@ -138,7 +138,7 @@ export const CreateEdicaoModal: React.FC<CreateEdicaoModalProps> = ({
             </label>
             <textarea
               rows={2}
-              placeholder="Ex: Álbuns lançados entre 1990 e 2005. Permitido até 2 álbuns por pessoa."
+              placeholder="Ex: Álbuns lançados entre 1990 e 2005. Permitido 1 álbum por pessoa."
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               className="w-full bg-zinc-950/70 border border-white/[0.08] rounded-xl p-3 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500 resize-none transition"

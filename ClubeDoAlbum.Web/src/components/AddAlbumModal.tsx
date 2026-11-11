@@ -66,7 +66,7 @@ export const AddAlbumModal: React.FC<AddAlbumModalProps> = ({
 
   // Verifica cota do membro selecionado
   const statusMembroAtual = membrosStatus.find((m) => m.userId === indicadoPorUserId);
-  const atingiuLimite = statusMembroAtual ? statusMembroAtual.totalIndicados >= 2 : false;
+  const atingiuLimite = statusMembroAtual ? statusMembroAtual.totalIndicados >= (statusMembroAtual.limiteMaximo || 1) : false;
 
   const handleSearchSpotify = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -101,7 +101,7 @@ export const AddAlbumModal: React.FC<AddAlbumModalProps> = ({
     }
 
     if (atingiuLimite) {
-      setError('Este membro já atingiu o limite de 2 indicações para a semana ativa.');
+      setError('Este membro já atingiu o limite de 1 indicação para a semana ativa.');
       return;
     }
 
@@ -206,14 +206,14 @@ export const AddAlbumModal: React.FC<AddAlbumModalProps> = ({
                     const count = st ? st.totalIndicados : 0;
                     return (
                       <option key={m.id} value={m.id} className="bg-zinc-900 text-white">
-                        {m.nome} ({count}/2 discos indicados)
+                        {m.nome} ({count}/1 disco indicado)
                       </option>
                     );
                   })}
                 </select>
                 {atingiuLimite && (
                   <p className="text-[11px] font-mono text-rose-400">
-                    Aviso: Este membro já indicou 2 discos nesta semana temática.
+                    Aviso: Este membro já indicou 1 disco nesta semana temática.
                   </p>
                 )}
               </div>
@@ -221,7 +221,7 @@ export const AddAlbumModal: React.FC<AddAlbumModalProps> = ({
               <div className="p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs font-mono text-zinc-300 flex items-center justify-between">
                 <span>Indicado por: <strong>{user?.nome || 'Você'}</strong></span>
                 <span className="text-[11px] text-zinc-500">
-                  Cota pessoal: {statusMembroAtual ? `${statusMembroAtual.totalIndicados}/2` : '0/2'}
+                  Cota pessoal: {statusMembroAtual ? `${statusMembroAtual.totalIndicados}/1` : '0/1'}
                 </span>
               </div>
             )}

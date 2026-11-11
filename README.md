@@ -35,7 +35,7 @@ Backend (ClubeDoAlbum.Api)
 
 
 **Funcionalidades**
--> Gestão de Semanas Temáticas: Criação de edições temáticas, controle de cotas de indicações por membro ativo (até 2 por semana) e ajuste flexível da data da reunião exclusivo para administradores sem afetar os dados da rodada.
+-> Gestão de Semanas Temáticas: Criação de edições temáticas, controle de cotas de indicações por membro ativo (1 por semana) e ajuste flexível da data da reunião exclusivo para administradores sem afetar os dados da rodada.
 
 -> Busca de Metadados & Faixas: Integração com o Spotify para busca de álbuns por texto ou resolução via URL direta, com listagem completa das faixas (tracklist) na página de detalhes.
 

@@ -294,7 +294,7 @@ public class AlbumsController : ControllerBase
                 edicaoTema = edicaoAtiva.Tema;
             }
 
-            // Valida regra do clube: Limite de até 2 álbuns por membro por semana/edição
+            // Valida regra do clube: Limite de 1 álbum por membro por semana/edição
             if (indicadoPorId.HasValue)
             {
                 int countJaIndicados;
@@ -313,11 +313,11 @@ public class AlbumsController : ControllerBase
                         a.EdicaoId == null);
                 }
 
-                if (countJaIndicados >= 2)
+                if (countJaIndicados >= 1)
                 {
                     var userIndicador = await _context.Users.FindAsync(indicadoPorId.Value);
                     var nomeUser = userIndicador?.Nome ?? "Este membro";
-                    return BadRequest(new { message = $"{nomeUser} já atingiu o limite de 2 indicações para esta semana temática (Máximo: 2 álbuns por membro)." });
+                    return BadRequest(new { message = $"{nomeUser} já atingiu o limite de 1 indicação para esta semana temática (Máximo: 1 álbum por membro)." });
                 }
             }
         }
